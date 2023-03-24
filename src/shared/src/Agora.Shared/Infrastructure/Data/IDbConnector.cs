@@ -1,6 +1,6 @@
 using System.Data;
 
-namespace Agora.Stores.Infrastructure;
+namespace Agora.Shared.Infrastructure.Data;
 
 public interface IDbConnector
 {

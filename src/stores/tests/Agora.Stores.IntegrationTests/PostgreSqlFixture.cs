@@ -1,3 +1,5 @@
+using Agora.Shared.Infrastructure;
+using Agora.Shared.Infrastructure.Data;
 using Agora.Stores.Infrastructure;
 
 using Dapper;
@@ -26,7 +28,8 @@ public class PostgreSqlFixture : IAsyncLifetime
         var services = new ServiceCollection();
         var cs = dbContainer.GetConnectionString();
 
-        services.AddStores(cs);
+        services.AddPostgreSql(cs);
+        services.AddStores();
         services.AddStoreMigrations(cs);
 
         var provider = services.BuildServiceProvider();

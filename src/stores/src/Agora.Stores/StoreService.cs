@@ -1,5 +1,6 @@
-﻿using Agora.Stores.Core;
-using Agora.Stores.Infrastructure;
+﻿using Agora.Shared.Infrastructure.Data;
+using Agora.Stores.Core;
+using Agora.Stores.Infrastructure.Data;
 
 using Dapper;
 
@@ -11,11 +12,13 @@ public record OpenStoreRequest
 {
     public Guid UserId { get; init; }
     public string Name { get; init; } = string.Empty;
-    public StoreAddr StoreAddr { get; init; }
+    public StoreAddr StoreAddr { get; init; } = StoreAddr.None;
 }
 
 public record StoreAddr
 {
+    public static readonly StoreAddr None = new();
+
     public string Street { get; init; } = string.Empty;
     public string City { get; init; } = string.Empty;
     public string State { get; init; } = string.Empty;
@@ -67,7 +70,7 @@ public class StoreService
 
         // Save to DB.
         var id = await connection.ExecuteScalarAsync<Guid>(
-            "INSERT INTO store_request (name) VALUES (@Name) RETURNING id", new { Name = application.Name });
+            $"INSERT INTO {Sql.StoreApplications.Table} (name) VALUES (@Name) RETURNING id", new { Name = application.Name });
 
         return id;
     }

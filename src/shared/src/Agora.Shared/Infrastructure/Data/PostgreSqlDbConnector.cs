@@ -2,7 +2,7 @@ using System.Data;
 
 using Npgsql;
 
-namespace Agora.Stores.Infrastructure.Data;
+namespace Agora.Shared.Infrastructure.Data;
 
 internal sealed class PostgreSqlDbConnector : IDbConnector
 {

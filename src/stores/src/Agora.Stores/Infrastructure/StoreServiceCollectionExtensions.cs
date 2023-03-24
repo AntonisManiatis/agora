@@ -9,10 +9,8 @@ namespace Agora.Stores.Infrastructure;
 
 public static class StoreServiceCollectionExtensions
 {
-    public static IServiceCollection AddStores(this IServiceCollection services, string connectionString)
+    public static IServiceCollection AddStores(this IServiceCollection services)
     {
-        // TODO: this line could be in a separate package.
-        services.AddTransient<IDbConnector>(sp => new PostgreSqlDbConnector(connectionString));
         services.AddScoped<StoreService>(); // ? Singleton maybe?
         return services;
     }
