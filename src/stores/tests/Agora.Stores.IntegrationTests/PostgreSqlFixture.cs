@@ -17,45 +17,43 @@ public class PostgreSqlFixture : IAsyncLifetime
     private readonly PostgreSqlContainer dbContainer =
         new PostgreSqlBuilder().Build();
 
-    private IServiceScope? scope;
+    private ServiceProvider? provider;
+    private IServiceScope? fixtureScope;
 
-    internal StoreService Service => scope!.ServiceProvider.GetRequiredService<StoreService>();
+    internal StoreService Service => fixtureScope!.ServiceProvider.GetRequiredService<StoreService>();
+    internal IDbConnector Connector => provider!.GetRequiredService<IDbConnector>();
 
     public async Task InitializeAsync()
     {
         await dbContainer.StartAsync();
 
-        var services = new ServiceCollection();
         var cs = dbContainer.GetConnectionString();
 
+        var services = new ServiceCollection();
         services.AddPostgreSql(cs);
-        services.AddStores();
         services.AddStoreMigrations(cs);
+        services.AddStores();
 
-        var provider = services.BuildServiceProvider();
-        scope = provider.CreateScope();
+        provider = services.BuildServiceProvider(validateScopes: true);
+        fixtureScope = provider.CreateScope();
 
         var connector = provider.GetRequiredService<IDbConnector>();
-        var connection = await connector.ConnectAsync();
+        using var connection = await connector.ConnectAsync();
 
+        // Fluent Migrator doesn't create a database.
         await connection.ExecuteAsync(@"
             CREATE DATABASE agora;
             CREATE EXTENSION IF NOT EXISTS ""uuid-ossp"";
         ");
 
-        using (var scope = provider.CreateScope())
-        {
-            var runner = scope.ServiceProvider.GetRequiredService<IMigrationRunner>();
-
-            // Execute the migrations
-            runner.MigrateUp();
-        }
+        provider.MigrateUp();
     }
 
     public async Task DisposeAsync()
     {
         await dbContainer.DisposeAsync();
 
-        scope?.Dispose();
+        provider?.Dispose();
+        fixtureScope?.Dispose();
     }
 }

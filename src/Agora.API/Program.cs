@@ -7,11 +7,14 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Authentication services.
 // * https://learn.microsoft.com/en-us/dotnet/core/compatibility/aspnet-core/7.0/default-authentication-scheme
-builder.Services.AddAuthentication().AddCookie(); // ! cookie only for now
+// builder.Services.AddAuthentication().AddCookie(); // ! cookie only for now
 
 // PostgreSQL services.
-builder.Services.AddPostgreSql(builder.Configuration.GetConnectionString("Default")!);
+var connectionString = builder.Configuration.GetConnectionString("PostgreSql")!;
+builder.Services.AddPostgreSql(connectionString);
+
 // Store services.
+builder.Services.AddStoreMigrations(connectionString);
 builder.Services.AddStores();
 
 builder.Services.AddControllers();
@@ -20,6 +23,12 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    // ! Perhaps not the best of ideas to run this on start? Should be fine for development.
+    app.Services.MigrateUp();
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -30,7 +39,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseAuthentication();
+// app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

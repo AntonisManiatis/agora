@@ -10,8 +10,8 @@
     <PackageReference Include="Dapper" />
     <PackageReference Include="ErrorOr" />
     <PackageReference Include="FluentMigrator" />
-    <PackageReference Include="FluentMigrator.Runner" />
     <PackageReference Include="FluentMigrator.Runner.Postgres" />
+    <PackageReference Include="Mapster" />
   </ItemGroup>
 
   <ItemGroup>

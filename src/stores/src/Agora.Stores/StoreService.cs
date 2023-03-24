@@ -6,8 +6,11 @@ using Dapper;
 
 using ErrorOr;
 
+using Mapster;
+
 namespace Agora.Stores;
 
+// TODO: How should we do superficial validation? DataComponent or FluentValidator?
 public record OpenStoreRequest
 {
     public Guid UserId { get; init; }
@@ -25,23 +28,6 @@ public record StoreAddr
     public string ZipCode { get; init; } = string.Empty;
 }
 
-// TODO: Consider AutoMapper or Mapster.
-internal static class StoreAddrExtensions
-{
-    internal static Address ToCore(this StoreAddr storeAddr)
-    {
-        return new Address
-        {
-            Street = storeAddr.Street,
-            City = storeAddr.City,
-            State = storeAddr.State,
-            ZipCode = storeAddr.ZipCode
-        };
-    }
-}
-
-public record OpenStoreResponse(Guid Id);
-
 public class StoreService
 {
     private readonly IDbConnector connector;
@@ -51,26 +37,58 @@ public class StoreService
         this.connector = connector;
     }
 
+    // TODO: perhaps userId too?
+    public async Task<ErrorOr<StoreApplicationDTO>> GetApplication(Guid applicationId)
+    {
+        using var connection = await connector.ConnectAsync();
+
+        var application = await connection.QueryFirstOrDefaultAsync<StoreApplication>(
+            $"SELECT * FROM {Sql.StoreApplications.Table} WHERE id = @Id",
+            new { Id = applicationId }
+        );
+        if (application is null)
+        {
+            return Error.NotFound();
+        }
+
+        return application.Adapt<StoreApplicationDTO>();
+    }
+
     public async Task<ErrorOr<Guid>> SubmitOpenStoreRequestAsync(OpenStoreRequest req)
     {
         ArgumentNullException.ThrowIfNull(req);
 
         using var connection = await connector.ConnectAsync();
-        // TODO: validate if name already exists, etc.
 
-        // TODO: Create the request.
+        // * Depends on the business logic, ideally it shouldn't collide with current shop names.
+        // * and not currently not Approved or Rejected applications.
+        var exists = await connection.ExecuteScalarAsync<bool>(
+            $"SELECT COUNT(1) FROM {Sql.StoreApplications.Table} WHERE name=@Name",
+            new { Name = req.Name }
+        );
+        if (exists)
+        {
+            return Error.Conflict(description: $"A store named {req.Name} already exists.");
+        }
+
+        // ? Is a physical address required?
+
+        // ? Is there a chance that a user cannot submit multiple independant requests?
+
         var application = new StoreApplication
         {
-            User = req.UserId,
+            UserId = req.UserId,
             Name = req.Name,
-            Address = req.StoreAddr.ToCore()
+            Address = req.StoreAddr.Adapt<Address>()
         };
-
-        // TODO: Raise an event saying a request was made.
 
         // Save to DB.
         var id = await connection.ExecuteScalarAsync<Guid>(
-            $"INSERT INTO {Sql.StoreApplications.Table} (name) VALUES (@Name) RETURNING id", new { Name = application.Name });
+            $"INSERT INTO {Sql.StoreApplications.Table} (name) VALUES (@Name) RETURNING id",
+            new { Name = application.Name }
+        );
+
+        // TODO: Raise an event saying a request was made.
 
         return id;
     }

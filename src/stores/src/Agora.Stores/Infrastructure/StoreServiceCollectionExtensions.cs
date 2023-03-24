@@ -1,4 +1,3 @@
-using Agora.Stores.Infrastructure.Data;
 using Agora.Stores.Infrastructure.Data.Migrations;
 
 using FluentMigrator.Runner;
