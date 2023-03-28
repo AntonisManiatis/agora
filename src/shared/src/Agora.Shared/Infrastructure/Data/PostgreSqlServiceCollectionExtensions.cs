@@ -1,8 +1,6 @@
-using Agora.Shared.Infrastructure.Data;
-
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Agora.Shared.Infrastructure;
+namespace Agora.Shared.Infrastructure.Data;
 
 public static class PostgreSqlServiceCollectionExtensions
 {

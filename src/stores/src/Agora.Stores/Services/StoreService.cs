@@ -1,4 +1,6 @@
 ﻿using Agora.Shared.Infrastructure.Data;
+using Agora.Shared.Infrastructure.Messaging;
+using Agora.Stores.Contracts;
 using Agora.Stores.Core;
 using Agora.Stores.Infrastructure.Data;
 
@@ -8,19 +10,23 @@ using ErrorOr;
 
 using Mapster;
 
-namespace Agora.Stores;
+namespace Agora.Stores.Services;
 
-// TODO: How should we do superficial validation? DataComponent or FluentValidator?
 public record OpenStoreRequest
 {
     public Guid UserId { get; init; }
+
     public string Name { get; init; } = string.Empty;
-    public StoreAddr StoreAddr { get; init; } = StoreAddr.None;
+    public TaxAddr TaxAddr { get; init; } = TaxAddr.Undefined;
+    // ? Or Tax Identification Number 
+    public string Tin { get; init; } = string.Empty;
+    // AKA GEMI in Greece.
+    public string? Brn { get; init; } // ? Could be specified later if it's not required immediately.
 }
 
-public record StoreAddr
+public record TaxAddr
 {
-    public static readonly StoreAddr None = new();
+    public static readonly TaxAddr Undefined = new();
 
     public string Street { get; init; } = string.Empty;
     public string City { get; init; } = string.Empty;
@@ -30,14 +36,16 @@ public record StoreAddr
 
 public class StoreService
 {
+    // TODO: Consider using repositories since we're not using EFCore.
     private readonly IDbConnector connector;
+    private readonly IMessagePublisher publisher;
 
-    public StoreService(IDbConnector connector)
+    public StoreService(IDbConnector connector, IMessagePublisher publisher)
     {
         this.connector = connector;
+        this.publisher = publisher;
     }
 
-    // TODO: perhaps userId too?
     public async Task<ErrorOr<StoreApplicationDTO>> GetApplication(Guid applicationId)
     {
         using var connection = await connector.ConnectAsync();
@@ -57,6 +65,8 @@ public class StoreService
     public async Task<ErrorOr<Guid>> SubmitOpenStoreRequestAsync(OpenStoreRequest req)
     {
         ArgumentNullException.ThrowIfNull(req);
+        // TODO: Add "superficial" validation here.
+        // TODO: Also I'll see if I can make a decorator and register it to DI so that it always validates a request
 
         using var connection = await connector.ConnectAsync();
 
@@ -71,24 +81,29 @@ public class StoreService
             return Error.Conflict(description: $"A store named {req.Name} already exists.");
         }
 
-        // ? Is a physical address required?
-
         // ? Is there a chance that a user cannot submit multiple independant requests?
 
         var application = new StoreApplication
         {
             UserId = req.UserId,
             Name = req.Name,
-            Address = req.StoreAddr.Adapt<Address>()
+            Tin = req.Tin,
+            TaxAddress = req.TaxAddr.Adapt<TaxAddress>()
         };
 
         // Save to DB.
         var id = await connection.ExecuteScalarAsync<Guid>(
-            $"INSERT INTO {Sql.StoreApplications.Table} (name) VALUES (@Name) RETURNING id",
-            new { Name = application.Name }
+            $"INSERT INTO {Sql.StoreApplications.Table} (user_id, name, status, tin) VALUES (@UserId, @Name, @Status, @Tin) RETURNING id",
+            new
+            {
+                UserId = application.UserId,
+                Name = application.Name,
+                Status = application.Status,
+                Tin = application.Tin
+            }
         );
 
-        // TODO: Raise an event saying a request was made.
+        await publisher.PublishAsync(new ApplicationSubmitted(req.UserId, id));
 
         return id;
     }

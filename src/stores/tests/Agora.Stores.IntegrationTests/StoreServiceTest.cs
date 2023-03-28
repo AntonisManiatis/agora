@@ -1,3 +1,5 @@
+using Agora.Stores.Services;
+
 using Dapper;
 
 using ErrorOr;
@@ -24,7 +26,8 @@ public class StoreServiceTest
         {
             UserId = Guid.NewGuid(),
             Name = "Coffee Lab",
-            StoreAddr = StoreAddr.None // TODO: Probably not a good idea but temp.
+            Tin = "000000000",
+            TaxAddr = TaxAddr.Undefined // TODO: Probably not a good idea but temp.
         };
 
         // Act
@@ -42,7 +45,8 @@ public class StoreServiceTest
         const string Name = "Pizza Palace";
 
         using var connection = await fixture.Connector.ConnectAsync();
-        await connection.ExecuteAsync($"INSERT INTO store_request (name) VALUES ('{Name}')");
+        var userId = Guid.NewGuid();
+        await connection.ExecuteAsync($"INSERT INTO store_request (user_id, name, tin) VALUES ('{userId}', '{Name}', '1')");
 
         var storeService = fixture.Service;
 
@@ -50,7 +54,8 @@ public class StoreServiceTest
         {
             UserId = Guid.NewGuid(),
             Name = Name,
-            StoreAddr = StoreAddr.None
+            Tin = "000000000",
+            TaxAddr = TaxAddr.Undefined
         };
 
         // Act
@@ -80,7 +85,13 @@ public class StoreServiceTest
     {
         // Arrange
         var storeService = fixture.Service;
-        var req = new OpenStoreRequest { UserId = Guid.NewGuid(), Name = "My store" };
+        var req = new OpenStoreRequest
+        {
+            UserId = Guid.NewGuid(),
+            Name = "My store",
+            Tin = "000000000"
+        };
+
         var applicationId = await storeService.SubmitOpenStoreRequestAsync(req);
 
         // Act
@@ -89,6 +100,7 @@ public class StoreServiceTest
         // Assert
         var expected = new StoreApplicationDTO
         {
+            Id = applicationId.Value,
             Name = "My store",
             Status = "Pending"
         };

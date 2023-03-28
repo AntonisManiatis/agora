@@ -1,6 +1,5 @@
-using Agora.Stores;
+using Agora.Stores.Services;
 
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Agora.API;
@@ -41,6 +40,8 @@ public class StoresController : ControllerBase
     /// <returns></returns>
     [HttpGet]
     [Route("requests/{id}")]
+    // ? Or Policy or Roles?
+    // [Authorize(Roles = Staff")]
     public async Task<ActionResult> GetStoreApplication(Guid id)
     {
         var result = await storeService.GetApplication(id);
@@ -52,18 +53,11 @@ public class StoresController : ControllerBase
     }
 
     [HttpPost]
-    [Route("requests/{id}/approve")]
-    public async Task<ActionResult> Approve(Guid id)
+    [Route("requests/{id}/{status}")]
+    // ? Or Policy or Roles?
+    // [Authorize(Roles = Staff")]
+    public async Task<ActionResult> Approval(Guid id, string status)
     {
-        // TODO: Use claims. Only authorized people can do this.
-        throw new NotImplementedException();
-    }
-
-    [HttpPost]
-    [Route("requests/{id}/reject")]
-    public async Task<ActionResult> Reject(Guid id)
-    {
-        // TODO: Use claims. Only authorized people can do this.
         throw new NotImplementedException();
     }
 }

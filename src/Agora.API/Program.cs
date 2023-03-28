@@ -1,4 +1,5 @@
 using Agora.Shared.Infrastructure;
+using Agora.Shared.Infrastructure.Data;
 using Agora.Stores.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);

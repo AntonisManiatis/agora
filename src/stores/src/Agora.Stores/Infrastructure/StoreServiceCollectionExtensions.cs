@@ -1,6 +1,9 @@
 using Agora.Stores.Infrastructure.Data.Migrations;
+using Agora.Stores.Services;
 
 using FluentMigrator.Runner;
+
+using FluentValidation;
 
 using Microsoft.Extensions.DependencyInjection;
 
@@ -10,6 +13,9 @@ public static class StoreServiceCollectionExtensions
 {
     public static IServiceCollection AddStores(this IServiceCollection services)
     {
+        // ? Can this be a singleton?
+        // See: https://docs.fluentvalidation.net/en/latest/aspnet.html#getting-started
+        services.AddTransient<IValidator<OpenStoreRequest>, OpenStoreRequestValidator>();
         services.AddScoped<StoreService>(); // ? Singleton maybe?
         return services;
     }

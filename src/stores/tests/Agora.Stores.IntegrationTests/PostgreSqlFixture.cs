@@ -1,10 +1,10 @@
 using Agora.Shared.Infrastructure;
 using Agora.Shared.Infrastructure.Data;
+using Agora.Shared.Infrastructure.Messaging;
 using Agora.Stores.Infrastructure;
+using Agora.Stores.Services;
 
 using Dapper;
-
-using FluentMigrator.Runner;
 
 using Microsoft.Extensions.DependencyInjection;
 
@@ -31,6 +31,7 @@ public class PostgreSqlFixture : IAsyncLifetime
 
         var services = new ServiceCollection();
         services.AddPostgreSql(cs);
+        services.TryAddMessaging();
         services.AddStoreMigrations(cs);
         services.AddStores();
 

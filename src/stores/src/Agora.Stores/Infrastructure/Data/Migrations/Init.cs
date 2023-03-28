@@ -12,7 +12,10 @@ public sealed class Init : Migration
         Create.Table(TableName)
             // ! Just to see a migration run.
             .WithColumn("id").AsGuid().PrimaryKey().WithDefault(SystemMethods.NewGuid)
-            .WithColumn("name").AsString().NotNullable();
+            .WithColumn("user_id").AsGuid().NotNullable()
+            .WithColumn("name").AsString().NotNullable()
+            .WithColumn("status").AsString().NotNullable().WithDefaultValue("Pending")
+            .WithColumn("tin").AsString(9).NotNullable();
     }
 
     public override void Down()
