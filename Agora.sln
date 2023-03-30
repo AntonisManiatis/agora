@@ -5,7 +5,7 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{D7A37767-7A74-4FC2-B107-329BB5684957}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Agora.API", "src\Agora.API\Agora.API.csproj", "{DCB8C02A-8DBF-4195-B555-B4858C0F385C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Agora.API", "src\api\src\Agora.API\Agora.API.csproj", "{DCB8C02A-8DBF-4195-B555-B4858C0F385C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "stores", "stores", "{5585FE36-89C1-4C45-8701-4DCC341EB855}"
 EndProject
