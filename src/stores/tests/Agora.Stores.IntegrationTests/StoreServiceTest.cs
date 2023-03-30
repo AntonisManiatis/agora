@@ -17,7 +17,7 @@ public class StoreServiceTest
     }
 
     [Fact]
-    public async Task Returns_an_application_id_if_the_request_is_valid()
+    public async Task Returns_a_store_id_if_the_request_is_valid()
     {
         // Arrange
         var storeService = fixture.Service;
@@ -31,7 +31,7 @@ public class StoreServiceTest
         };
 
         // Act
-        var result = await storeService.SubmitOpenStoreRequestAsync(req);
+        var result = await storeService.OpenStoreAsync(req);
 
         // Assert
         Assert.NotEqual(default, result.Value);
@@ -46,7 +46,7 @@ public class StoreServiceTest
 
         using var connection = await fixture.Connector.ConnectAsync();
         var userId = Guid.NewGuid();
-        await connection.ExecuteAsync($"INSERT INTO store_request (user_id, name, tin) VALUES ('{userId}', '{Name}', '1')");
+        await connection.ExecuteAsync($"INSERT INTO store (user_id, name, tin) VALUES ('{userId}', '{Name}', '1')");
 
         var storeService = fixture.Service;
 
@@ -59,7 +59,7 @@ public class StoreServiceTest
         };
 
         // Act
-        var result = await storeService.SubmitOpenStoreRequestAsync(req);
+        var result = await storeService.OpenStoreAsync(req);
 
         // Assert
         // TODO: I hate having this test depend on the description.
@@ -67,14 +67,14 @@ public class StoreServiceTest
     }
 
     [Fact]
-    public async Task Retrieving_an_application_that_does_not_exist_returns_an_error()
+    public async Task Retrieving_a_store_that_does_not_exist_returns_an_error()
     {
         // Arrange
         var storeService = fixture.Service;
         var applicationId = Guid.NewGuid();
 
         // Act
-        var result = await storeService.GetApplication(applicationId);
+        var result = await storeService.GetStoreAsync(applicationId);
 
         // Assert
         Assert.Contains(Error.NotFound(), result.Errors);
@@ -92,13 +92,13 @@ public class StoreServiceTest
             Tin = "000000000"
         };
 
-        var applicationId = await storeService.SubmitOpenStoreRequestAsync(req);
+        var applicationId = await storeService.OpenStoreAsync(req);
 
         // Act
-        var result = await storeService.GetApplication(applicationId.Value);
+        var result = await storeService.GetStoreAsync(applicationId.Value);
 
         // Assert
-        var expected = new StoreApplicationDTO
+        var expected = new StoreDTO
         {
             Id = applicationId.Value,
             Name = "My store",

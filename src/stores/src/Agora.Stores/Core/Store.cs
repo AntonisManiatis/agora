@@ -7,7 +7,7 @@ internal enum Status
     Rejected
 }
 
-internal sealed class StoreApplication
+internal sealed class Store
 {
     public Guid Id { get; set; }
     public Guid UserId { get; init; }

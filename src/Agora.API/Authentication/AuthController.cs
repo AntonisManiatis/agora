@@ -4,13 +4,12 @@ namespace Agora.API;
 
 public record LoginRequest(string Email, string Password);
 
-[ApiController]
-[Route("api/[controller]")]
-public class UsersController : ControllerBase
+[Route("[controller]")]
+public class AuthController : ApiController
 {
     [HttpPost]
     [Route("login")]
-    public ActionResult Login([FromBody] LoginRequest req)
+    public ActionResult Login(LoginRequest req)
     {
         // TODO: Implement later
         return Ok();

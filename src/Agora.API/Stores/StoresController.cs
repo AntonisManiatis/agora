@@ -1,14 +1,14 @@
+using Agora.Stores;
 using Agora.Stores.Services;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Agora.API;
 
-[ApiController]
-[Route("api/[controller]")]
+[Route("[controller]")]
 [Produces("application/json")]
-// [Authorize] // ! Once we setup auth, uncomment.
-public class StoresController : ControllerBase
+public class StoresController : ApiController
 {
     private readonly StoreService storeService;
 
@@ -18,46 +18,39 @@ public class StoresController : ControllerBase
     }
 
     /// <summary>
-    /// Submits a request to open a store.
+    /// Opens a store.
     /// </summary>
     /// <returns></returns>
     [HttpPost]
-    [Route("requests")] // Or open-requests
+    [Authorize]
     public async Task<ActionResult> OpenStoreAsync(OpenStoreRequest req)
     {
-        var result = await storeService.SubmitOpenStoreRequestAsync(req);
+        var result = await storeService.OpenStoreAsync(req);
 
         return result.Match<ActionResult>(
-            appId => CreatedAtAction(nameof(GetStoreApplication), new { Id = appId }, appId),
+            storeId => CreatedAtAction(nameof(GetStoreAsync), new { Id = storeId }, storeId),
             _ => BadRequest()
         );
     }
 
+    [HttpGet]
+    public async Task<IEnumerable<StoreDTO>> GetStoresAsync() =>
+        await storeService.GetStoresAsync();
+
     /// <summary>
-    /// 
+    /// Retrieves a store by id.
     /// </summary>
-    /// <param name="id"></param>
+    /// <param name="storeId"></param>
     /// <returns></returns>
     [HttpGet]
-    [Route("requests/{id}")]
-    // ? Or Policy or Roles?
-    // [Authorize(Roles = Staff")]
-    public async Task<ActionResult> GetStoreApplication(Guid id)
+    [Route("{storeId}")]
+    public async Task<ActionResult> GetStoreAsync(Guid storeId)
     {
-        var result = await storeService.GetApplication(id);
+        var result = await storeService.GetStoreAsync(storeId);
 
         return result.MatchFirst<ActionResult>(
             app => Ok(app),
             error => NotFound(error)
         );
-    }
-
-    [HttpPost]
-    [Route("requests/{id}/{status}")]
-    // ? Or Policy or Roles?
-    // [Authorize(Roles = Staff")]
-    public async Task<ActionResult> Approval(Guid id, string status)
-    {
-        throw new NotImplementedException();
     }
 }

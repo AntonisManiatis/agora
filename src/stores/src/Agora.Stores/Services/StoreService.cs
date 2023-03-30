@@ -46,23 +46,28 @@ public class StoreService
         this.publisher = publisher;
     }
 
-    public async Task<ErrorOr<StoreApplicationDTO>> GetApplication(Guid applicationId)
+    public async Task<ErrorOr<StoreDTO>> GetStoreAsync(Guid storeId)
     {
         using var connection = await connector.ConnectAsync();
 
-        var application = await connection.QueryFirstOrDefaultAsync<StoreApplication>(
-            $"SELECT * FROM {Sql.StoreApplications.Table} WHERE id = @Id",
-            new { Id = applicationId }
+        var store = await connection.QueryFirstOrDefaultAsync<Store>(
+            $"SELECT * FROM {Sql.Stores.Table} WHERE id = @Id",
+            new { Id = storeId }
         );
-        if (application is null)
+        if (store is null)
         {
             return Error.NotFound();
         }
 
-        return application.Adapt<StoreApplicationDTO>();
+        return store.Adapt<StoreDTO>();
     }
 
-    public async Task<ErrorOr<Guid>> SubmitOpenStoreRequestAsync(OpenStoreRequest req)
+    public async Task<IEnumerable<StoreDTO>> GetStoresAsync()
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task<ErrorOr<Guid>> OpenStoreAsync(OpenStoreRequest req)
     {
         ArgumentNullException.ThrowIfNull(req);
         // TODO: Add "superficial" validation here.
@@ -70,10 +75,8 @@ public class StoreService
 
         using var connection = await connector.ConnectAsync();
 
-        // * Depends on the business logic, ideally it shouldn't collide with current shop names.
-        // * and not currently not Approved or Rejected applications.
         var exists = await connection.ExecuteScalarAsync<bool>(
-            $"SELECT COUNT(1) FROM {Sql.StoreApplications.Table} WHERE name=@Name",
+            $"SELECT COUNT(1) FROM {Sql.Stores.Table} WHERE name=@Name",
             new { Name = req.Name }
         );
         if (exists)
@@ -81,9 +84,9 @@ public class StoreService
             return Error.Conflict(description: $"A store named {req.Name} already exists.");
         }
 
-        // ? Is there a chance that a user cannot submit multiple independant requests?
+        // ? Is there a chance that a user cannot open multile stores? 
 
-        var application = new StoreApplication
+        var store = new Store
         {
             UserId = req.UserId,
             Name = req.Name,
@@ -92,19 +95,19 @@ public class StoreService
         };
 
         // Save to DB.
-        var id = await connection.ExecuteScalarAsync<Guid>(
-            $"INSERT INTO {Sql.StoreApplications.Table} (user_id, name, status, tin) VALUES (@UserId, @Name, @Status, @Tin) RETURNING id",
+        var storeId = await connection.ExecuteScalarAsync<Guid>(
+            $"INSERT INTO {Sql.Stores.Table} (user_id, name, status, tin) VALUES (@UserId, @Name, @Status, @Tin) RETURNING id",
             new
             {
-                UserId = application.UserId,
-                Name = application.Name,
-                Status = application.Status,
-                Tin = application.Tin
+                UserId = store.UserId,
+                Name = store.Name,
+                Status = store.Status,
+                Tin = store.Tin
             }
         );
 
-        await publisher.PublishAsync(new ApplicationSubmitted(req.UserId, id));
+        await publisher.PublishAsync(new StoreOpened(req.UserId, storeId));
 
-        return id;
+        return storeId;
     }
 }

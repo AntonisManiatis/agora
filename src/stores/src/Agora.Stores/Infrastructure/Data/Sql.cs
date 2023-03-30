@@ -2,8 +2,8 @@ namespace Agora.Stores.Infrastructure.Data;
 
 internal static class Sql
 {
-    internal static class StoreApplications
+    internal static class Stores
     {
-        internal const string Table = "store_request";
+        internal const string Table = "store";
     }
 }
