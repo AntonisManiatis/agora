@@ -2,7 +2,7 @@ using FluentMigrator;
 
 namespace Agora.Identity.Infrastructure.Data.Migrations;
 
-[Migration(1)]
+[Migration(2)]
 public sealed class InitUsers : Migration
 {
     private const string SchemaName = "identity";

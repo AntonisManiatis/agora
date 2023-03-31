@@ -1,9 +1,10 @@
 namespace Agora.Identity.Core;
 
-// ! this should not be public.
-public interface IUserRepository
+internal interface IUserRepository
 {
     Task<bool> ExistsAsync(string email);
+
+    Task<User?> GetUserByEmail(string email);
 
     Task<Guid> AddAsync(User user);
 }

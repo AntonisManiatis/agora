@@ -26,6 +26,18 @@ internal sealed class PostgreSqlUserRepository : IUserRepository
         return exists;
     }
 
+    public async Task<User?> GetUserByEmail(string email)
+    {
+        using var connection = await connector.ConnectAsync();
+
+        var user = await connection.QueryFirstOrDefaultAsync<User>(
+            "SELECT * FROM identity.user WHERE email=@Email",
+            new { Email = email } // ! again allocation.
+        );
+
+        return user;
+    }
+
     public async Task<Guid> AddAsync(User user)
     {
         using var connection = await connector.ConnectAsync();

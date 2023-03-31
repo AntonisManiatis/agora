@@ -10,9 +10,9 @@ namespace Agora.API;
 [Produces("application/json")]
 public class StoresController : ApiController
 {
-    private readonly StoreService storeService;
+    private readonly IStoreService storeService;
 
-    public StoresController(StoreService storeService)
+    public StoresController(IStoreService storeService)
     {
         this.storeService = storeService;
     }
@@ -28,7 +28,8 @@ public class StoresController : ApiController
         var result = await storeService.OpenStoreAsync(req);
 
         return result.Match<ActionResult>(
-            storeId => CreatedAtAction(nameof(GetStoreAsync), new { Id = storeId }, storeId),
+            // ! see if I can avoid the allocation.
+            storeId => CreatedAtAction("GetStore", new { storeId = storeId }, storeId),
             _ => BadRequest()
         );
     }

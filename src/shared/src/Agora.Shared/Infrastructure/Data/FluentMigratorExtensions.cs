@@ -1,3 +1,5 @@
+using System.Reflection;
+
 using FluentMigrator.Runner;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -14,5 +16,20 @@ public static class FluentMigratorExtensions
             // Execute the migrations
             runner.MigrateUp();
         }
+    }
+
+    public static IServiceCollection AddMigrations(this IServiceCollection services,
+        string connectionString, params Assembly[] assemblies)
+    {
+        services.AddFluentMigratorCore()
+            .ConfigureRunner(c =>
+            {
+                c.AddPostgres()
+                    .WithGlobalConnectionString(connectionString)
+                    .ScanIn(assemblies).For.Migrations();
+            })
+            .AddLogging();
+
+        return services;
     }
 }

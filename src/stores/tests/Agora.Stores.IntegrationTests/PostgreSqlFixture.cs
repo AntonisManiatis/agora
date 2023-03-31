@@ -20,7 +20,7 @@ public class PostgreSqlFixture : IAsyncLifetime
     private ServiceProvider? provider;
     private IServiceScope? fixtureScope;
 
-    internal StoreService Service => fixtureScope!.ServiceProvider.GetRequiredService<StoreService>();
+    internal IStoreService Service => fixtureScope!.ServiceProvider.GetRequiredService<IStoreService>();
     internal IDbConnector Connector => provider!.GetRequiredService<IDbConnector>();
 
     public async Task InitializeAsync()
@@ -32,7 +32,7 @@ public class PostgreSqlFixture : IAsyncLifetime
         var services = new ServiceCollection();
         services.AddPostgreSql(cs);
         services.TryAddMessaging();
-        services.AddStoreMigrations(cs);
+        services.AddMigrations(cs, typeof(IStoreService).Assembly);
         services.AddStores();
 
         provider = services.BuildServiceProvider(validateScopes: true);

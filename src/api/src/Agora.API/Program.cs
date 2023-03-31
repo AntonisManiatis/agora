@@ -1,11 +1,16 @@
 using System.Text;
 
+using Agora.Shared;
 using Agora.Shared.Infrastructure;
-using Agora.Stores.Infrastructure;
+using Agora.Identity;
+using Agora.Stores;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using ErrorOr;
+using Agora.Identity.Infrastructure.Tokens;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,7 +18,15 @@ var builder = WebApplication.CreateBuilder(args);
 
 var configuration = builder.Configuration;
 
-// Authentication services.
+var connectionString = configuration.GetConnectionString("PostgreSql")!;
+// Shared infrastructure.
+builder.Services.AddShared(connectionString);
+builder.Services.AddMigrations(connectionString, // ! there has to be a better way to do this :D
+    typeof(Agora.Identity.IdentityServiceCollectionExtensions).Assembly,
+    typeof(Agora.Stores.StoreServiceCollectionExtensions).Assembly
+);
+
+// Identity & authentication services.
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -29,15 +42,29 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-var connectionString = configuration.GetConnectionString("PostgreSql")!;
-// Shared infrastructure
-builder.Services.AddShared(connectionString);
+builder.Services.Configure<JwtOptions>(configuration.GetSection("Jwt"));
+builder.Services.AddIdentity(sp =>
+{
+    var options = sp.GetRequiredService<IOptions<JwtOptions>>();
+    return () => options.Value;
+});
 
 // Store services.
-builder.Services.AddStoreMigrations(connectionString);
 builder.Services.AddStores();
 
+// API services.
 builder.Services.AddControllers();
+builder.Services.AddProblemDetails(options =>
+    options.CustomizeProblemDetails = ctx =>
+    {
+        var errors = ctx.HttpContext.Items["errors"] as IList<Error>;
+        if (errors is not null)
+        {
+            ctx.ProblemDetails.Extensions.Add("errorCodes", errors.Select(err => err.Code));
+        }
+    }
+);
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>

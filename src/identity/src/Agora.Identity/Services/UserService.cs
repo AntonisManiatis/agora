@@ -6,7 +6,12 @@ using FluentValidation;
 
 namespace Agora.Identity.Services;
 
-public class UserService
+public interface IUserService
+{
+    Task<ErrorOr<Guid>> RegisterUserAsync(RegisterCommand command);
+}
+
+internal class UserService : IUserService
 {
     private readonly IValidator<RegisterCommand> validator;
     private readonly IUserRepository userRepository;
@@ -25,7 +30,7 @@ public class UserService
         var result = await validator.ValidateAsync(command);
         if (!result.IsValid)
         {
-            result.Errors
+            return result.Errors
                 .ConvertAll(err => Error.Validation(err.PropertyName, err.ErrorMessage));
         }
 

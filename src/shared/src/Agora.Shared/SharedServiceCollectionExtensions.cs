@@ -3,7 +3,7 @@ using Agora.Shared.Infrastructure.Messaging;
 
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Agora.Shared.Infrastructure;
+namespace Agora.Shared;
 
 public static class SharedServiceCollectionExtensions
 {

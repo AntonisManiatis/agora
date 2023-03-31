@@ -16,9 +16,9 @@ public record RegistrationRequest(
 [Route("[controller]")]
 public class UsersController : ApiController
 {
-    private readonly UserService userService;
+    private readonly IUserService userService;
 
-    public UsersController(UserService userService)
+    public UsersController(IUserService userService)
     {
         this.userService = userService;
     }
@@ -28,6 +28,10 @@ public class UsersController : ApiController
     {
         var result = await userService.RegisterUserAsync(request.Adapt<RegisterCommand>());
 
-        throw new NotImplementedException();
+        // TODO: don't return this yet!
+        return result.Match(
+            userId => Ok(),
+            errors => Problem(errors)
+        );
     }
 }

@@ -34,7 +34,16 @@ public record TaxAddr
     public string ZipCode { get; init; } = string.Empty;
 }
 
-public class StoreService
+public interface IStoreService
+{
+    Task<ErrorOr<StoreDTO>> GetStoreAsync(Guid storeId);
+
+    Task<IEnumerable<StoreDTO>> GetStoresAsync();
+
+    Task<ErrorOr<Guid>> OpenStoreAsync(OpenStoreRequest req);
+}
+
+internal class StoreService : IStoreService
 {
     // TODO: Consider using repositories since we're not using EFCore.
     private readonly IDbConnector connector;

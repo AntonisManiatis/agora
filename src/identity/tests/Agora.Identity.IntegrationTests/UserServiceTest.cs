@@ -4,7 +4,8 @@ using ErrorOr;
 
 namespace Agora.Identity.IntegrationTests;
 
-public class UserServiceTest : IClassFixture<PostgreSqlFixture>
+[Collection(nameof(PostgreSqlFixture))]
+public class UserServiceTest
 {
     private readonly PostgreSqlFixture fixture;
 

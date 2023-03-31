@@ -1,5 +1,6 @@
 using Agora.Identity.Infrastructure;
 using Agora.Identity.Infrastructure.Data;
+using Agora.Identity.Infrastructure.Tokens;
 using Agora.Identity.Services;
 using Agora.Shared.Infrastructure;
 using Agora.Shared.Infrastructure.Data;
@@ -21,7 +22,9 @@ public class PostgreSqlFixture : IAsyncLifetime
     private ServiceProvider? provider;
     private IServiceScope? fixtureScope;
 
-    internal UserService UserService => fixtureScope!.ServiceProvider!.GetRequiredService<UserService>();
+    internal IAuthenticationService AuthenticationService =>
+        fixtureScope!.ServiceProvider!.GetRequiredService<IAuthenticationService>();
+    internal IUserService UserService => fixtureScope!.ServiceProvider!.GetRequiredService<IUserService>();
     internal IDbConnector Connector => provider!.GetRequiredService<IDbConnector>();
 
     public async Task InitializeAsync()
@@ -33,10 +36,15 @@ public class PostgreSqlFixture : IAsyncLifetime
         var services = new ServiceCollection();
         services.AddPostgreSql(cs);
         services.TryAddMessaging();
-        services.AddIdentityMigrations(cs);
+        services.AddMigrations(cs, typeof(IUserService).Assembly);
 
-        services.Add();
-        services.AddIdentity();
+        services.AddIdentity(sp => () => new JwtOptions
+        {
+            Issuer = "Agora",
+            Audience = "Agora",
+            Expires = TimeSpan.FromMinutes(5),
+            Secret = "super-secret-key"
+        });
 
         provider = services.BuildServiceProvider(validateScopes: true);
         fixtureScope = provider.CreateScope();
@@ -44,7 +52,6 @@ public class PostgreSqlFixture : IAsyncLifetime
         var connector = provider.GetRequiredService<IDbConnector>();
         using var connection = await connector.ConnectAsync();
 
-        // TODO: Will fail if other fixtures run.
         await connection.ExecuteAsync(@"
             CREATE DATABASE agora;
             CREATE EXTENSION IF NOT EXISTS ""uuid-ossp"";
