@@ -12,7 +12,7 @@ public static class StoreServiceCollectionExtensions
     {
         // ? Can this be a singleton?
         // See: https://docs.fluentvalidation.net/en/latest/aspnet.html#getting-started
-        services.AddTransient<IValidator<OpenStoreRequest>, OpenStoreRequestValidator>();
+        services.AddTransient<IValidator<OpenStoreCommand>, OpenStoreRequestValidator>();
         services.AddScoped<IStoreService, StoreService>(); // ? Singleton maybe?
         return services;
     }

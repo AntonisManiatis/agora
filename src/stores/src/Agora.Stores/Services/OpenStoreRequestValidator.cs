@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace Agora.Stores.Services;
 
-internal sealed class OpenStoreRequestValidator : AbstractValidator<OpenStoreRequest>
+internal sealed class OpenStoreRequestValidator : AbstractValidator<OpenStoreCommand>
 {
     public OpenStoreRequestValidator()
     {

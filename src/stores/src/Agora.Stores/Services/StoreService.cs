@@ -12,9 +12,9 @@ using Mapster;
 
 namespace Agora.Stores.Services;
 
-public record OpenStoreRequest
+public record OpenStoreCommand
 {
-    public Guid UserId { get; init; }
+    public Guid UserId { get; set; }
 
     public string Name { get; init; } = string.Empty;
     public TaxAddr TaxAddr { get; init; } = TaxAddr.Undefined;
@@ -40,7 +40,7 @@ public interface IStoreService
 
     Task<IEnumerable<StoreDTO>> GetStoresAsync();
 
-    Task<ErrorOr<Guid>> OpenStoreAsync(OpenStoreRequest req);
+    Task<ErrorOr<Guid>> OpenStoreAsync(OpenStoreCommand req);
 }
 
 internal class StoreService : IStoreService
@@ -76,9 +76,9 @@ internal class StoreService : IStoreService
         throw new NotImplementedException();
     }
 
-    public async Task<ErrorOr<Guid>> OpenStoreAsync(OpenStoreRequest req)
+    public async Task<ErrorOr<Guid>> OpenStoreAsync(OpenStoreCommand command)
     {
-        ArgumentNullException.ThrowIfNull(req);
+        ArgumentNullException.ThrowIfNull(command);
         // TODO: Add "superficial" validation here.
         // TODO: Also I'll see if I can make a decorator and register it to DI so that it always validates a request
 
@@ -86,21 +86,21 @@ internal class StoreService : IStoreService
 
         var exists = await connection.ExecuteScalarAsync<bool>(
             $"SELECT COUNT(1) FROM {Sql.Stores.Table} WHERE name=@Name",
-            new { Name = req.Name }
+            new { Name = command.Name }
         );
         if (exists)
         {
-            return Error.Conflict(description: $"A store named {req.Name} already exists.");
+            return Error.Conflict(description: $"A store named {command.Name} already exists.");
         }
 
         // ? Is there a chance that a user cannot open multile stores? 
 
         var store = new Store
         {
-            UserId = req.UserId,
-            Name = req.Name,
-            Tin = req.Tin,
-            TaxAddress = req.TaxAddr.Adapt<TaxAddress>()
+            UserId = command.UserId,
+            Name = command.Name,
+            Tin = command.Tin,
+            TaxAddress = command.TaxAddr.Adapt<TaxAddress>()
         };
 
         // Save to DB.
@@ -115,7 +115,7 @@ internal class StoreService : IStoreService
             }
         );
 
-        await publisher.PublishAsync(new StoreOpened(req.UserId, storeId));
+        await publisher.PublishAsync(new StoreOpened(command.UserId, storeId));
 
         return storeId;
     }

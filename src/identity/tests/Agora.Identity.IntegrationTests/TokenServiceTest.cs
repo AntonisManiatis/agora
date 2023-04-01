@@ -4,11 +4,11 @@ using Agora.Identity.Services;
 namespace Agora.Identity.IntegrationTests;
 
 [Collection(nameof(PostgreSqlFixture))]
-public class AuthenticationServiceTest
+public class TokenServiceTest
 {
     private readonly PostgreSqlFixture fixture;
 
-    public AuthenticationServiceTest(PostgreSqlFixture fixture)
+    public TokenServiceTest(PostgreSqlFixture fixture)
     {
         this.fixture = fixture;
     }
@@ -17,27 +17,27 @@ public class AuthenticationServiceTest
     public async Task Providing_invalid_properties_returns_a_validation_error()
     {
         // Arrange
-        var authenticationService = fixture.AuthenticationService;
-        var invalidRequest = new AuthenticationCommand("test", "");
+        var tokenService = fixture.TokenService;
+        var invalidRequest = new IssueTokenCommand("test", "");
 
         // Act
-        var response = await authenticationService.AuthenticateAsync(invalidRequest);
+        var response = await tokenService.IssueAsync(invalidRequest);
 
         // Assert
         var errorCodes = response.Errors.Select(err => err.Code);
-        Assert.Contains(nameof(AuthenticationCommand.Email), errorCodes);
-        Assert.Contains(nameof(AuthenticationCommand.Password), errorCodes);
+        Assert.Contains(nameof(IssueTokenCommand.Email), errorCodes);
+        Assert.Contains(nameof(IssueTokenCommand.Password), errorCodes);
     }
 
     [Fact]
     public async Task Authentication_returns_an_error_if_user_with_given_email_does_not_exist()
     {
         // Arrange
-        var authenticationService = fixture.AuthenticationService;
-        var request = new AuthenticationCommand("test12321@test.net", "Apassword!");
+        var tokenService = fixture.TokenService;
+        var request = new IssueTokenCommand("test12321@test.net", "Apassword!");
 
         // Act
-        var response = await authenticationService.AuthenticateAsync(request);
+        var response = await tokenService.IssueAsync(request);
 
         // Assert
         var errorCodes = response.Errors.Select(err => err.Code);
@@ -48,13 +48,13 @@ public class AuthenticationServiceTest
     public async Task Authentication_returns_an_error_if_user_exists_but_password_does_not_match()
     {
         // Arrange
-        var authenticationService = fixture.AuthenticationService;
+        var tokenService = fixture.TokenService;
         var email = "test12321@test.net";
         await fixture.UserService.RegisterUserAsync(new RegisterCommand("Test", "Test", email, "Apassword"));
-        var request = new AuthenticationCommand(email, "doesnotmatch");
+        var request = new IssueTokenCommand(email, "doesnotmatch");
 
         // Act
-        var response = await authenticationService.AuthenticateAsync(request);
+        var response = await tokenService.IssueAsync(request);
 
         // Assert
         var errorCodes = response.Errors.Select(err => err.Code);
@@ -65,16 +65,16 @@ public class AuthenticationServiceTest
     public async Task Returns_a_token_if_credentials_are_ok()
     {
         // Arrange
-        var authenticationService = fixture.AuthenticationService;
+        var tokenService = fixture.TokenService;
         var email = "test12321@test.net";
         var password = "Apassword";
 
         await fixture.UserService.RegisterUserAsync(new RegisterCommand("Test", "Test", email, password));
 
-        var request = new AuthenticationCommand(email, password);
+        var request = new IssueTokenCommand(email, password);
 
         // Act
-        var response = await authenticationService.AuthenticateAsync(request);
+        var response = await tokenService.IssueAsync(request);
 
         // Assert
         Assert.NotEmpty(response.Value);

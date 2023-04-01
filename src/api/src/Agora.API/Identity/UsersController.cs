@@ -4,7 +4,7 @@ using Mapster;
 
 using Microsoft.AspNetCore.Mvc;
 
-namespace Agora.API;
+namespace Agora.API.Identity;
 
 public record RegistrationRequest(
     string FirstName,

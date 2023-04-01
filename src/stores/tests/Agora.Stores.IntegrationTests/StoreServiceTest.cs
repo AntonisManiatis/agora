@@ -22,7 +22,7 @@ public class StoreServiceTest
         // Arrange
         var storeService = fixture.Service;
 
-        var req = new OpenStoreRequest
+        var command = new OpenStoreCommand
         {
             UserId = Guid.NewGuid(),
             Name = "Coffee Lab",
@@ -31,11 +31,10 @@ public class StoreServiceTest
         };
 
         // Act
-        var result = await storeService.OpenStoreAsync(req);
+        var result = await storeService.OpenStoreAsync(command);
 
         // Assert
         Assert.NotEqual(default, result.Value);
-
     }
 
     [Fact]
@@ -50,7 +49,7 @@ public class StoreServiceTest
 
         var storeService = fixture.Service;
 
-        var req = new OpenStoreRequest
+        var command = new OpenStoreCommand
         {
             UserId = Guid.NewGuid(),
             Name = Name,
@@ -59,7 +58,7 @@ public class StoreServiceTest
         };
 
         // Act
-        var result = await storeService.OpenStoreAsync(req);
+        var result = await storeService.OpenStoreAsync(command);
 
         // Assert
         // TODO: I hate having this test depend on the description.
@@ -85,14 +84,14 @@ public class StoreServiceTest
     {
         // Arrange
         var storeService = fixture.Service;
-        var req = new OpenStoreRequest
+        var command = new OpenStoreCommand
         {
             UserId = Guid.NewGuid(),
             Name = "My store",
             Tin = "000000000"
         };
 
-        var applicationId = await storeService.OpenStoreAsync(req);
+        var applicationId = await storeService.OpenStoreAsync(command);
 
         // Act
         var result = await storeService.GetStoreAsync(applicationId.Value);

@@ -2,11 +2,11 @@ using FluentValidation;
 
 namespace Agora.Identity.Services;
 
-public record AuthenticationCommand(string Email, string Password);
+public record IssueTokenCommand(string Email, string Password);
 
-internal sealed class AuthenticationCommandValidator : AbstractValidator<AuthenticationCommand>
+internal sealed class IssueTokenCommandValidator : AbstractValidator<IssueTokenCommand>
 {
-    public AuthenticationCommandValidator()
+    public IssueTokenCommandValidator()
     {
         RuleFor(x => x.Email).NotEmpty().EmailAddress();
         // TODO: More rules here, (ideally should match the registration?).

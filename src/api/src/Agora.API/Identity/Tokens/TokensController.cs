@@ -5,25 +5,24 @@ using Mapster;
 
 using Microsoft.AspNetCore.Mvc;
 
-namespace Agora.API;
+namespace Agora.API.Identity.Tokens;
 
 public record LoginRequest(string Email, string Password);
 
 [Route("[controller]")]
-public class AuthController : ApiController
+public class TokensController : ApiController
 {
-    private readonly IAuthenticationService authenticationService;
+    private readonly ITokenService tokenService;
 
-    public AuthController(IAuthenticationService authenticationService)
+    public TokensController(ITokenService tokenService)
     {
-        this.authenticationService = authenticationService;
+        this.tokenService = tokenService;
     }
 
     [HttpPost]
-    [Route("login")]
-    public async Task<IActionResult> LoginAsync(LoginRequest req)
+    public async Task<IActionResult> IssueAsync(LoginRequest req)
     {
-        var result = await authenticationService.AuthenticateAsync(req.Adapt<AuthenticationCommand>());
+        var result = await tokenService.IssueAsync(req.Adapt<IssueTokenCommand>());
 
         if (result.IsError && result.FirstError == Errors.InvalidCredentials)
         {

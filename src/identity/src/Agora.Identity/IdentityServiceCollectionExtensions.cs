@@ -26,8 +26,8 @@ public static class IdentityServiceCollectionExtensions
         services.AddTransient<IValidator<RegisterCommand>, RegisterCommandValidator>();
         services.AddScoped<IUserService, UserService>();
 
-        services.AddTransient<IValidator<AuthenticationCommand>, AuthenticationCommandValidator>();
-        services.AddScoped<IAuthenticationService, AuthenticationService>();
+        services.AddTransient<IValidator<IssueTokenCommand>, IssueTokenCommandValidator>();
+        services.AddScoped<ITokenService, TokenService>();
         return services;
     }
 }

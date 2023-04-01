@@ -22,8 +22,8 @@ public class PostgreSqlFixture : IAsyncLifetime
     private ServiceProvider? provider;
     private IServiceScope? fixtureScope;
 
-    internal IAuthenticationService AuthenticationService =>
-        fixtureScope!.ServiceProvider!.GetRequiredService<IAuthenticationService>();
+    internal ITokenService TokenService =>
+        fixtureScope!.ServiceProvider!.GetRequiredService<ITokenService>();
     internal IUserService UserService => fixtureScope!.ServiceProvider!.GetRequiredService<IUserService>();
     internal IDbConnector Connector => provider!.GetRequiredService<IDbConnector>();
 

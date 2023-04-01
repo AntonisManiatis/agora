@@ -6,19 +6,19 @@ using FluentValidation;
 
 namespace Agora.Identity.Services;
 
-public interface IAuthenticationService
+public interface ITokenService
 {
-    Task<ErrorOr<string>> AuthenticateAsync(AuthenticationCommand request);
+    Task<ErrorOr<string>> IssueAsync(IssueTokenCommand request);
 }
 
-internal class AuthenticationService : IAuthenticationService
+internal class TokenService : ITokenService
 {
-    private readonly IValidator<AuthenticationCommand> validator;
+    private readonly IValidator<IssueTokenCommand> validator;
     private readonly IUserRepository userRepository;
     private readonly IJwtGenerator tokenGenerator;
 
-    public AuthenticationService(
-        IValidator<AuthenticationCommand> validator,
+    public TokenService(
+        IValidator<IssueTokenCommand> validator,
         IUserRepository userRepository,
         IJwtGenerator tokenGenerator)
     {
@@ -27,7 +27,7 @@ internal class AuthenticationService : IAuthenticationService
         this.tokenGenerator = tokenGenerator;
     }
 
-    public async Task<ErrorOr<string>> AuthenticateAsync(AuthenticationCommand request)
+    public async Task<ErrorOr<string>> IssueAsync(IssueTokenCommand request)
     {
         var result = await validator.ValidateAsync(request);
         if (!result.IsValid)
