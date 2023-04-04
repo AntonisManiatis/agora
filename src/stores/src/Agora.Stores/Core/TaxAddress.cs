@@ -1,6 +1,6 @@
 namespace Agora.Stores.Core;
 
-internal sealed class TaxAddress
+sealed class TaxAddress
 {
     internal static readonly TaxAddress Undefined = new();
 

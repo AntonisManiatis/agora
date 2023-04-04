@@ -20,7 +20,7 @@ public class StoreServiceTest
     public async Task Returns_a_store_id_if_the_request_is_valid()
     {
         // Arrange
-        var storeService = fixture.Service;
+        var storeService = fixture.StoreService;
 
         var command = new OpenStoreCommand
         {
@@ -45,9 +45,9 @@ public class StoreServiceTest
 
         using var connection = await fixture.Connector.ConnectAsync();
         var userId = Guid.NewGuid();
-        await connection.ExecuteAsync($"INSERT INTO store (user_id, name, tin) VALUES ('{userId}', '{Name}', '1')");
+        await connection.ExecuteAsync($"INSERT INTO stores.store (user_id, name, tin) VALUES ('{userId}', '{Name}', '1')");
 
-        var storeService = fixture.Service;
+        var storeService = fixture.StoreService;
 
         var command = new OpenStoreCommand
         {
@@ -69,7 +69,7 @@ public class StoreServiceTest
     public async Task Retrieving_a_store_that_does_not_exist_returns_an_error()
     {
         // Arrange
-        var storeService = fixture.Service;
+        var storeService = fixture.StoreService;
         var applicationId = Guid.NewGuid();
 
         // Act
@@ -83,7 +83,7 @@ public class StoreServiceTest
     public async Task An_application_is_in_pending_state_after_being_sumbitted()
     {
         // Arrange
-        var storeService = fixture.Service;
+        var storeService = fixture.StoreService;
         var command = new OpenStoreCommand
         {
             UserId = Guid.NewGuid(),

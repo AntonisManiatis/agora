@@ -1,10 +1,6 @@
-﻿using Agora.Shared.Infrastructure.Data;
-using Agora.Shared.Infrastructure.Messaging;
+﻿using Agora.Shared.Infrastructure.Messaging;
 using Agora.Stores.Contracts;
 using Agora.Stores.Core;
-using Agora.Stores.Infrastructure.Data;
-
-using Dapper;
 
 using ErrorOr;
 
@@ -40,29 +36,25 @@ public interface IStoreService
 
     Task<IEnumerable<StoreDTO>> GetStoresAsync();
 
-    Task<ErrorOr<Guid>> OpenStoreAsync(OpenStoreCommand req);
+    Task<ErrorOr<Guid>> OpenStoreAsync(OpenStoreCommand command);
 }
 
 internal class StoreService : IStoreService
 {
-    // TODO: Consider using repositories since we're not using EFCore.
-    private readonly IDbConnector connector;
+    private readonly IStoreRepository storeRepository;
     private readonly IMessagePublisher publisher;
 
-    public StoreService(IDbConnector connector, IMessagePublisher publisher)
+    public StoreService(
+        IStoreRepository storeRepository,
+        IMessagePublisher publisher)
     {
-        this.connector = connector;
+        this.storeRepository = storeRepository;
         this.publisher = publisher;
     }
 
     public async Task<ErrorOr<StoreDTO>> GetStoreAsync(Guid storeId)
     {
-        using var connection = await connector.ConnectAsync();
-
-        var store = await connection.QueryFirstOrDefaultAsync<Store>(
-            $"SELECT * FROM {Sql.Stores.Table} WHERE id = @Id",
-            new { Id = storeId }
-        );
+        var store = await storeRepository.GetStoreAsync(storeId);
         if (store is null)
         {
             return Error.NotFound();
@@ -82,17 +74,11 @@ internal class StoreService : IStoreService
         // TODO: Add "superficial" validation here.
         // TODO: Also I'll see if I can make a decorator and register it to DI so that it always validates a request
 
-        using var connection = await connector.ConnectAsync();
-
-        var exists = await connection.ExecuteScalarAsync<bool>(
-            $"SELECT COUNT(1) FROM {Sql.Stores.Table} WHERE name=@Name",
-            new { Name = command.Name }
-        );
+        var exists = await storeRepository.ExistsAsync(command.Name);
         if (exists)
         {
             return Error.Conflict(description: $"A store named {command.Name} already exists.");
         }
-
         // ? Is there a chance that a user cannot open multile stores? 
 
         var store = new Store
@@ -104,16 +90,7 @@ internal class StoreService : IStoreService
         };
 
         // Save to DB.
-        var storeId = await connection.ExecuteScalarAsync<Guid>(
-            $"INSERT INTO {Sql.Stores.Table} (user_id, name, status, tin) VALUES (@UserId, @Name, @Status, @Tin) RETURNING id",
-            new
-            {
-                UserId = store.UserId,
-                Name = store.Name,
-                Status = store.Status,
-                Tin = store.Tin
-            }
-        );
+        var storeId = await storeRepository.AddAsync(store);
 
         await publisher.PublishAsync(new StoreOpened(command.UserId, storeId));
 

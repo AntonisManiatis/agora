@@ -14,7 +14,13 @@ public record OpenStoreRequest(
     // ? Or Tax Identification Number 
     string Tin,
     // AKA GEMI in Greece.
-    string? Brn
+    string? Brn,
+    IEnumerable<ProductListing> Listings
+);
+
+public record ProductListing(
+    string Title,
+    string Description
 );
 
 public record TaxAddress

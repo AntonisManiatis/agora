@@ -1,7 +1,6 @@
 using Agora.Shared.Infrastructure;
 using Agora.Shared.Infrastructure.Data;
 using Agora.Shared.Infrastructure.Messaging;
-using Agora.Stores.Infrastructure;
 using Agora.Stores.Services;
 
 using Dapper;
@@ -20,7 +19,11 @@ public class PostgreSqlFixture : IAsyncLifetime
     private ServiceProvider? provider;
     private IServiceScope? fixtureScope;
 
-    internal IStoreService Service => fixtureScope!.ServiceProvider.GetRequiredService<IStoreService>();
+    internal IStoreService StoreService => fixtureScope!.ServiceProvider.GetRequiredService<IStoreService>();
+    internal IProductService ProductService =>
+        fixtureScope!.ServiceProvider.GetRequiredService<IProductService>();
+    internal ICategoryService CategoryService =>
+        fixtureScope!.ServiceProvider.GetRequiredService<ICategoryService>();
     internal IDbConnector Connector => provider!.GetRequiredService<IDbConnector>();
 
     public async Task InitializeAsync()
