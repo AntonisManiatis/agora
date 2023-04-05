@@ -97,7 +97,7 @@ public class StoreServiceTest
         var result = await storeService.GetStoreAsync(applicationId.Value);
 
         // Assert
-        var expected = new StoreDTO
+        var expected = new Store
         {
             Id = applicationId.Value,
             Name = "My store",

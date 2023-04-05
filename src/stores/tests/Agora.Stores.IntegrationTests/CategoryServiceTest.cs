@@ -1,7 +1,5 @@
 using Agora.Stores.Services;
 
-using ErrorOr;
-
 namespace Agora.Stores.IntegrationTests;
 
 [Collection(nameof(PostgreSqlFixture))]
@@ -46,7 +44,7 @@ public class CategoryServiceTest
         var categoryService = fixture.CategoryService;
         var command = new MakeCategoryCommand(
             storeId,
-            "Iced coffee"
+            "Non iced coffee"
         );
 
         // Act

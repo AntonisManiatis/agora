@@ -1,5 +1,5 @@
-using Agora.Stores.Core;
 using Agora.Stores.Core.Products;
+using Agora.Stores.Core.Stores;
 
 using Microsoft.Extensions.DependencyInjection;
 

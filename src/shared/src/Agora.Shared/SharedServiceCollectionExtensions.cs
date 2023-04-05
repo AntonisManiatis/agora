@@ -7,6 +7,11 @@ namespace Agora.Shared;
 
 public static class SharedServiceCollectionExtensions
 {
+    static SharedServiceCollectionExtensions()
+    {
+        Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;
+    }
+
     public static IServiceCollection AddShared(this IServiceCollection services, string connectionString)
     {
         // PostgreSQL services.

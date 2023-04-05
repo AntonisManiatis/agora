@@ -1,4 +1,4 @@
-namespace Agora.Stores.Core;
+namespace Agora.Stores.Core.Stores;
 
 sealed class TaxAddress
 {

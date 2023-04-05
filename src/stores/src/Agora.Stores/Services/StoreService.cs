@@ -1,12 +1,21 @@
 ﻿using Agora.Shared.Infrastructure.Messaging;
 using Agora.Stores.Contracts;
-using Agora.Stores.Core;
+using Agora.Stores.Core.Stores;
 
 using ErrorOr;
 
 using Mapster;
 
 namespace Agora.Stores.Services;
+
+public record Store
+{
+    public Guid Id { get; init; }
+    public string Name { get; init; } = string.Empty;
+    // ? or int?
+    public string Status { get; init; } = string.Empty;
+    // TODO: What else?
+}
 
 public record OpenStoreCommand
 {
@@ -32,14 +41,14 @@ public record TaxAddr
 
 public interface IStoreService
 {
-    Task<ErrorOr<StoreDTO>> GetStoreAsync(Guid storeId);
+    Task<ErrorOr<Store>> GetStoreAsync(Guid storeId);
 
-    Task<IEnumerable<StoreDTO>> GetStoresAsync();
+    Task<IEnumerable<Store>> GetStoresAsync();
 
     Task<ErrorOr<Guid>> OpenStoreAsync(OpenStoreCommand command);
 }
 
-internal class StoreService : IStoreService
+internal sealed class StoreService : IStoreService
 {
     private readonly IStoreRepository storeRepository;
     private readonly IMessagePublisher publisher;
@@ -52,7 +61,7 @@ internal class StoreService : IStoreService
         this.publisher = publisher;
     }
 
-    public async Task<ErrorOr<StoreDTO>> GetStoreAsync(Guid storeId)
+    public async Task<ErrorOr<Store>> GetStoreAsync(Guid storeId)
     {
         var store = await storeRepository.GetStoreAsync(storeId);
         if (store is null)
@@ -60,10 +69,10 @@ internal class StoreService : IStoreService
             return Error.NotFound();
         }
 
-        return store.Adapt<StoreDTO>();
+        return store.Adapt<Store>();
     }
 
-    public async Task<IEnumerable<StoreDTO>> GetStoresAsync()
+    public Task<IEnumerable<Store>> GetStoresAsync()
     {
         throw new NotImplementedException();
     }
@@ -81,12 +90,12 @@ internal class StoreService : IStoreService
         }
         // ? Is there a chance that a user cannot open multile stores? 
 
-        var store = new Store
+        var store = new Core.Stores.Store
         {
             UserId = command.UserId,
             Name = command.Name,
             Tin = command.Tin,
-            TaxAddress = command.TaxAddr.Adapt<TaxAddress>()
+            TaxAddress = command.TaxAddr.Adapt<Core.Stores.TaxAddress>()
         };
 
         // Save to DB.

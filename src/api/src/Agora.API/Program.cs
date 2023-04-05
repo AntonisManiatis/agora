@@ -1,16 +1,17 @@
 using System.Text;
 
+using Agora.Identity;
+using Agora.Identity.Infrastructure.Tokens;
 using Agora.Shared;
 using Agora.Shared.Infrastructure;
-using Agora.Identity;
 using Agora.Stores;
 
+using ErrorOr;
+
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using ErrorOr;
-using Agora.Identity.Infrastructure.Tokens;
-using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 

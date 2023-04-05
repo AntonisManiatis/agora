@@ -1,4 +1,3 @@
-using Agora.Stores;
 using Agora.Stores.Services;
 
 using Mapster;
@@ -65,7 +64,7 @@ public class StoresController : ApiController
     }
 
     [HttpGet]
-    public async Task<IEnumerable<StoreDTO>> GetStoresAsync() =>
+    public async Task<IEnumerable<Store>> GetStoresAsync() =>
         await storeService.GetStoresAsync();
 
     /// <summary>
@@ -83,5 +82,36 @@ public class StoresController : ApiController
             store => Ok(store),
             errors => Problem(errors)
         );
+    }
+
+    [HttpGet]
+    [Route("{storeId}/categories")]
+    public Task<IActionResult> GetStoreCategoriesAsync(Guid storeId)
+    {
+        throw new NotImplementedException();
+    }
+
+    [HttpPost]
+    [Route("{storeId}/categories")]
+    [Authorize] // TODO: using specific role/policy
+    public Task<IActionResult> MakeCategoryAsync(Guid storeId)
+    {
+        throw new NotImplementedException();
+    }
+
+    [HttpPatch]
+    [Route("{storeId}/categories")]
+    [Authorize] // TODO: using specific role/policy
+    public Task<IActionResult> RenameCategoryAsync(Guid storeId)
+    {
+        throw new NotImplementedException();
+    }
+
+    [HttpDelete]
+    [Route("{storeId}/categories/{categoryId}")]
+    [Authorize] // TODO: using specific role/policy
+    public Task<IActionResult> DeleteCategoryAsync(Guid storeId, int categoryId)
+    {
+        throw new NotImplementedException();
     }
 }

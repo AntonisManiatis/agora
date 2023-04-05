@@ -1,4 +1,4 @@
-using Agora.Stores.Core;
+using Agora.Stores.Core.Stores;
 
 using ErrorOr;
 
@@ -18,6 +18,10 @@ public interface ICategoryService
 {
     // TODO: Returns?
     Task<ErrorOr<int>> MakeCategoryAsync(MakeCategoryCommand command);
+
+    // TODO: Delete a category
+    // TODO: Rename a category
+    // TODO: Add or remove products from a category.
 }
 
 sealed class CategoryService : ICategoryService
