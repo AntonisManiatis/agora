@@ -48,7 +48,7 @@ public interface IStoreService
     Task<ErrorOr<Guid>> OpenStoreAsync(OpenStoreCommand command);
 }
 
-internal sealed class StoreService : IStoreService
+sealed class StoreService : IStoreService
 {
     private readonly IStoreRepository storeRepository;
     private readonly IMessagePublisher publisher;

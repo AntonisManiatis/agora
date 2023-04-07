@@ -5,7 +5,7 @@ using Dapper;
 
 namespace Agora.Stores.Infrastructure.Data;
 
-internal sealed class PostgreSqlStoreRepository : IStoreRepository
+sealed class PostgreSqlStoreRepository : IStoreRepository
 {
     private readonly IDbConnector connector;
 

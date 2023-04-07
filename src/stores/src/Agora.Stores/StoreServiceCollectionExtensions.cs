@@ -21,6 +21,7 @@ public static class StoreServiceCollectionExtensions
 
         services.AddScoped<ICategoryService, CategoryService>();
 
+        services.AddTransient<IValidator<ListProductCommand>, ListProductCommandValidator>();
         services.AddScoped<IProductService, ProductService>();
         return services;
     }

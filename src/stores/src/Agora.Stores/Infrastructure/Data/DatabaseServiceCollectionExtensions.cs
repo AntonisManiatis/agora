@@ -5,9 +5,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Agora.Stores.Infrastructure.Data;
 
-public static class DatabaseServiceCollectionExtensions
+static class DatabaseServiceCollectionExtensions
 {
-    public static IServiceCollection AddRepositories(this IServiceCollection services)
+    internal static IServiceCollection AddRepositories(this IServiceCollection services)
     {
         services.AddSingleton<IStoreRepository, PostgreSqlStoreRepository>();
         services.AddSingleton<IProductRepository, PostgreSqlProductRepository>();
