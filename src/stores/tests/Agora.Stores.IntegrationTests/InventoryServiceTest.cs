@@ -3,9 +3,10 @@ using Agora.Stores.Services;
 namespace Agora.Stores.IntegrationTests;
 
 [Collection(nameof(PostgreSqlFixture))]
-public class ProductServiceTest
+public class ProductServiceTest : IAsyncLifetime
 {
     private readonly PostgreSqlFixture fixture;
+    private Guid existingStoreId;
 
     public ProductServiceTest(PostgreSqlFixture fixture)
     {
@@ -13,17 +14,15 @@ public class ProductServiceTest
     }
 
     [Fact]
-    public async Task Validation_errors() // TODO: Find a better name :D.
+    public async Task Providing_any_of_the_following_args_returns_a_validation_error()
     {
         // Arrange
         var productService = fixture.ProductService;
         var command = new ListProductCommand(
             Guid.Empty,
             Guid.Empty,
-            "",
-            "",
-            "",
-            new List<ProductOption>()
+            "101-SB",
+            0
         );
 
         // Act
@@ -33,8 +32,7 @@ public class ProductServiceTest
         var codes = result.Errors.Select(err => err.Code);
         Assert.Contains(nameof(ListProductCommand.StoreId), codes);
         Assert.Contains(nameof(ListProductCommand.ProductId), codes);
-        Assert.Contains(nameof(ListProductCommand.Title), codes);
-        Assert.Contains(nameof(ListProductCommand.Description), codes);
+        Assert.Contains(nameof(ListProductCommand.Quantity), codes);
     }
 
     [Fact]
@@ -42,13 +40,13 @@ public class ProductServiceTest
     {
         // Arrange
         var productService = fixture.ProductService;
+
+        var storeId = Guid.NewGuid(); // Any random guid that doesn't exist
         var command = new ListProductCommand(
             Guid.NewGuid(),
-            Guid.Empty,
-            "url of my product?",
-            "My product",
-            "This product is awesome",
-            new List<ProductOption>()
+            storeId,
+            "101-SB",
+            10
         );
 
         // Act
@@ -59,23 +57,47 @@ public class ProductServiceTest
     }
 
     [Fact]
-    public async Task Test_2()
+    public async Task Add() // TODO: Name
     {
         // Arrange
         var productService = fixture.ProductService;
+
+        var productId = Guid.NewGuid();
         var command = new ListProductCommand(
-            Guid.NewGuid(),
-            Guid.NewGuid(), // TODO: Not new guid, get real store id
-            "url of my product?",
-            "My product",
-            "This product is awesome",
-            new List<ProductOption>()
+            productId,
+            existingStoreId,
+            "101-SB",
+            10
         );
 
         // Act
         var result = await productService.AddListingAsync(command);
 
         // Assert
-        Assert.Contains(Errors.Stores.NotFound, result.Errors);
+        var expected = new Product(
+            productId,
+            existingStoreId,
+            "101-SB",
+            10
+        );
+        var actual = await productService.GetProductAsync(productId);
+
+        Assert.Equal(expected, actual.Value);
     }
+
+    public async Task InitializeAsync()
+    {
+        var command = new OpenStoreCommand
+        {
+            UserId = Guid.NewGuid(),
+            Name = "Testing inventory",
+            Tin = "000000000",
+            TaxAddr = TaxAddr.Undefined
+        };
+
+        var result = await fixture.StoreService.OpenStoreAsync(command);
+        this.existingStoreId = result.Value;
+    }
+
+    public Task DisposeAsync() => Task.CompletedTask;
 }

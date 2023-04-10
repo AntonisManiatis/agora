@@ -1,4 +1,4 @@
-namespace Agora.Stores.Core.Products;
+namespace Agora.Sales.Core.Products;
 
 sealed class ProductId : IEquatable<ProductId>
 {
@@ -11,7 +11,9 @@ sealed class ProductId : IEquatable<ProductId>
 
     public override bool Equals(object? obj) => Equals(obj as ProductId);
 
+
     public bool Equals(ProductId? other) => other != null && Value.Equals(other.Value);
+
 
     public override int GetHashCode() => HashCode.Combine(Value);
 

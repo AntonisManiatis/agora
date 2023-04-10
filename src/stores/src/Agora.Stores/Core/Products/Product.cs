@@ -1,28 +1,51 @@
 using Agora.Shared.Core;
 using Agora.Stores.Core.Stores;
 
+using ErrorOr;
+
 namespace Agora.Stores.Core.Products;
 
 sealed class Product : Entity
 {
-    private readonly List<ProductOption> options = new();
-
-    internal Product(ProductId id, StoreId storeId)
+    internal Product(
+        ProductId id,
+        StoreId storeId,
+        string? sku,
+        Quantity quantity
+    )
     {
         Id = id;
         StoreId = storeId;
+        Sku = sku;
+        Quantity = quantity;
     }
 
-    internal ProductId Id { get; }
-    internal StoreId StoreId { get; }
-    internal string Title { get; set; } = string.Empty;
-    internal string Description { get; set; } = string.Empty;
-    internal IReadOnlyList<ProductOption> Options => options;
-
-    internal static Product List(ProductId productId, StoreId storeId)
+    internal static ErrorOr<Product> List(
+        ProductId productId,
+        StoreId storeId,
+        string? sku,
+        Quantity quantity
+    )
     {
-        var product = new Product(productId, storeId);
+        // ? others?
+
+        var product = new Product(
+            productId,
+            storeId,
+            sku,
+            quantity
+        );
+
         product.AddEvent(new ProductListed(productId, storeId));
         return product;
     }
+
+    internal ProductId Id { get; }
+
+    internal StoreId StoreId { get; }
+
+    internal string? Sku { get; set; }
+
+    internal Quantity Quantity { get; private set; }
+    // TODO: Implement equality, either here or in Entity type?
 }

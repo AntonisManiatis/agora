@@ -14,6 +14,9 @@ public static class StoreServiceCollectionExtensions
         // Infrastructure.
         services.AddRepositories();
 
+        // Mappings
+        Mappings.Init();
+
         // ? Can this be a singleton?
         // See: https://docs.fluentvalidation.net/en/latest/aspnet.html#getting-started
         services.AddTransient<IValidator<OpenStoreCommand>, OpenStoreRequestValidator>();
@@ -22,7 +25,7 @@ public static class StoreServiceCollectionExtensions
         services.AddScoped<ICategoryService, CategoryService>();
 
         services.AddTransient<IValidator<ListProductCommand>, ListProductCommandValidator>();
-        services.AddScoped<IProductService, ProductService>();
+        services.AddScoped<IInventoryService, InventoryService>();
         return services;
     }
 }

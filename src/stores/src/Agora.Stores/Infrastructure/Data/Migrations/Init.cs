@@ -2,6 +2,10 @@ using FluentMigrator;
 
 namespace Agora.Stores.Infrastructure.Data.Migrations;
 
+// ! Note: I intentionally haven't used the schema defined in Sql.cs because
+// ! I feel like once a migration gets applied it shouldn't change. But the Sql.cs is always the
+// ! currently valid DB schema
+
 [Migration(1)]
 public sealed class Init : Migration
 {
@@ -28,6 +32,15 @@ public sealed class Init : Migration
         Create.ForeignKey()
             .FromTable("store_category").InSchema("stores").ForeignColumn("store_id")
             .ToTable("store").InSchema("stores").PrimaryColumn("id");
+
+        // Products
+        Create.Table("product")
+            .InSchema("stores")
+            .WithColumn("id").AsInt32().Identity() // ? Unsure about this.
+            .WithColumn("product_id").AsGuid().NotNullable()
+            .WithColumn("store_id").AsGuid().NotNullable()
+            .WithColumn("sku").AsString(32)
+            .WithColumn("quantity").AsInt32().NotNullable().WithDefaultValue(0);
     }
 
     public override void Down()
@@ -37,5 +50,6 @@ public sealed class Init : Migration
 
         Delete.Table(TableName);
         Delete.Table("store_category");
+        Delete.Table("product");
     }
 }

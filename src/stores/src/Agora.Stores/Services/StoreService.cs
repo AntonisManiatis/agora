@@ -95,7 +95,7 @@ sealed class StoreService : IStoreService
             UserId = command.UserId,
             Name = command.Name,
             Tin = command.Tin,
-            TaxAddress = command.TaxAddr.Adapt<Core.Stores.TaxAddress>()
+            // TaxAddress = command.TaxAddr.Adapt<Core.Stores.TaxAddress>() // TODO: Mapster fails because immutable, will fix later
         };
 
         // Save to DB.

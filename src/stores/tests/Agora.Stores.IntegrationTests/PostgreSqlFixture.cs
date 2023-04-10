@@ -1,3 +1,4 @@
+using Agora.Shared;
 using Agora.Shared.Infrastructure;
 using Agora.Shared.Infrastructure.Data;
 using Agora.Shared.Infrastructure.Messaging;
@@ -20,8 +21,8 @@ public class PostgreSqlFixture : IAsyncLifetime
     private IServiceScope? fixtureScope;
 
     internal IStoreService StoreService => fixtureScope!.ServiceProvider.GetRequiredService<IStoreService>();
-    internal IProductService ProductService =>
-        fixtureScope!.ServiceProvider.GetRequiredService<IProductService>();
+    internal IInventoryService ProductService =>
+        fixtureScope!.ServiceProvider.GetRequiredService<IInventoryService>();
     internal ICategoryService CategoryService =>
         fixtureScope!.ServiceProvider.GetRequiredService<ICategoryService>();
     internal IDbConnector Connector => provider!.GetRequiredService<IDbConnector>();
@@ -33,8 +34,7 @@ public class PostgreSqlFixture : IAsyncLifetime
         var cs = dbContainer.GetConnectionString();
 
         var services = new ServiceCollection();
-        services.AddPostgreSql(cs);
-        services.TryAddMessaging();
+        services.AddShared(cs);
         services.AddMigrations(cs, typeof(IStoreService).Assembly);
         services.AddStores();
 

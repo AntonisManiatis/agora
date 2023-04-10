@@ -15,4 +15,10 @@ public static class Errors
         public static readonly Error AlreadyExists =
             Error.Conflict(code: "Categories.AlreadyExists", description: "Category already exists");
     }
+
+    public static class Products
+    {
+        public static readonly Error NotFound =
+            Error.NotFound(code: "Products.NotFound", description: "Product not found");
+    }
 }

@@ -99,18 +99,17 @@ sealed class PostgreSqlStoreRepository : IStoreRepository
     {
         using var connection = await connector.ConnectAsync();
 
+        var id = new { Id = storeId };
         var store = await connection.QueryFirstOrDefaultAsync<Store?>(
             $"SELECT * FROM {Sql.Schema}.{Sql.Stores.Table} WHERE {Sql.Stores.Id} = @Id",
-            new { Id = storeId }
+            id
         );
 
         if (store is not null)
         {
-            // Perhaps needed here. 
-            // https://andrewlock.net/using-snake-case-column-names-with-dapper-and-postgresql/
             var categories = await connection.QueryAsync<Category>(
                 $@"SELECT * FROM {Sql.Schema}.{Sql.Category.Table} WHERE {Sql.Category.StoreId} = @Id",
-                new { Id = store.Id }
+                id
             );
 
             foreach (var category in categories)

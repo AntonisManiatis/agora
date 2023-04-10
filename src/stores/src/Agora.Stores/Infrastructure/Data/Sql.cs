@@ -26,4 +26,14 @@ internal static class Sql
         internal static readonly string Name = nameof(Core.Stores.Category.Name).ToSnakeCase();
         internal static readonly string StoreId = "store_id";
     }
+
+    internal static class Product
+    {
+        internal const string Table = "product";
+
+        internal static readonly string Id = "product_id";
+        internal static readonly string StoreId = nameof(Core.Products.Product.StoreId).ToSnakeCase();
+        internal static readonly string Sku = nameof(Core.Products.Product.Sku).ToSnakeCase();
+        internal static readonly string Quantity = nameof(Core.Products.Product.Quantity).ToSnakeCase();
+    }
 }
