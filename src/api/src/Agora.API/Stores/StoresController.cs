@@ -7,15 +7,23 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Agora.API.Stores;
 
-public record OpenStoreRequest(
-    string Name,
-    TaxAddress TaxAddress,
-    // ? Or Tax Identification Number 
-    string Tin,
-    // AKA GEMI in Greece.
-    string? Brn,
-    IEnumerable<ProductListing> Listings
+public record StorePreferences(
+    string Language,
+    string? Country, // Optional
+    string? Currency // Optional
 );
+
+public record RegisterStoreRequest(
+    StorePreferences Preferences,
+    string Name
+);
+
+// TaxAddress TaxAddress,
+// // ? Or Tax Identification Number 
+// string Tin,
+// // AKA GEMI in Greece.
+// string? Brn,
+// IEnumerable<ProductListing> Listings
 
 public record ProductListing(
     string Title,
@@ -44,17 +52,20 @@ public class StoresController : ApiController
     }
 
     /// <summary>
-    /// Opens a store.
+    /// Registers a store.
     /// </summary>
     /// <returns></returns>
     [HttpPost]
     [Authorize]
-    public async Task<IActionResult> OpenStoreAsync(OpenStoreRequest req)
+    public async Task<IActionResult> RegisterStoreAsync(RegisterStoreRequest req)
     {
-        var command = req.Adapt<OpenStoreCommand>();
-        command.UserId = Guid.NewGuid(); // TODO: Use current user.
+        var storeId = Guid.NewGuid(); // TODO: Figure out who makes this
+        var command = new RegisterStoreCommand(
+            storeId,
+            Guid.NewGuid() // TODO: GET user by token
+        );
 
-        var result = await storeService.OpenStoreAsync(command);
+        var result = await storeService.RegisterStoreAsync(command);
 
         return result.Match<IActionResult>(
             // ! see if I can avoid the allocation.

@@ -1,7 +1,7 @@
-/*
+using System.Reflection;
+
 using Agora.Shared.Infrastructure;
 using Agora.Shared.Infrastructure.Data;
-using Agora.Shared.Infrastructure.Messaging;
 
 using Dapper;
 
@@ -9,26 +9,31 @@ using Microsoft.Extensions.DependencyInjection;
 
 using Testcontainers.PostgreSql;
 
-namespace Agora.Stores.IntegrationTests;
+namespace Agora.Shared.IntegrationTests;
 
-public class PostgreSqlFixture : IAsyncLifetime
+/// <summary>
+/// Spins up a PostgreSql docker container and creates a database called agora. 
+/// </summary>
+public abstract class PostgreSqlFixture : IAsyncLifetime
 {
     private readonly PostgreSqlContainer dbContainer =
         new PostgreSqlBuilder().Build();
 
     private ServiceProvider? provider;
 
-    internal IDbConnector Connector => provider!.GetRequiredService<IDbConnector>();
+    protected abstract Assembly[] Migrations { get; }
+
+    public string? ConnectionString { get; private set; }
 
     public async Task InitializeAsync()
     {
         await dbContainer.StartAsync();
 
-        var cs = dbContainer.GetConnectionString();
+        ConnectionString = dbContainer.GetConnectionString();
 
         var services = new ServiceCollection();
-        services.AddPostgreSql(cs);
-        services.TryAddMessaging();
+        services.AddShared(ConnectionString);
+        services.AddMigrations(ConnectionString, Migrations);
 
         provider = services.BuildServiceProvider(validateScopes: true);
 
@@ -50,4 +55,3 @@ public class PostgreSqlFixture : IAsyncLifetime
         provider?.Dispose();
     }
 }
-*/

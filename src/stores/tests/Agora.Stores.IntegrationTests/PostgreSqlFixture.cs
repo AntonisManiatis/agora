@@ -1,7 +1,6 @@
 using Agora.Shared;
 using Agora.Shared.Infrastructure;
 using Agora.Shared.Infrastructure.Data;
-using Agora.Shared.Infrastructure.Messaging;
 using Agora.Stores.Services;
 
 using Dapper;

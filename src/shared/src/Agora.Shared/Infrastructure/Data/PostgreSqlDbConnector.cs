@@ -4,7 +4,7 @@ using Npgsql;
 
 namespace Agora.Shared.Infrastructure.Data;
 
-internal sealed class PostgreSqlDbConnector : IDbConnector
+sealed class PostgreSqlDbConnector : IDbConnector
 {
     private readonly string connectionString;
 
@@ -13,10 +13,10 @@ internal sealed class PostgreSqlDbConnector : IDbConnector
         this.connectionString = connectionString;
     }
 
-    public async Task<IDbConnection> ConnectAsync() // ? Maybe ct?
+    public async Task<IDbConnection> ConnectAsync(CancellationToken cancellationToken = default)
     {
         var connection = new NpgsqlConnection(connectionString);
-        await connection.OpenAsync();
+        await connection.OpenAsync(cancellationToken);
         return connection;
     }
 }

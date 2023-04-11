@@ -11,8 +11,7 @@ internal static class Sql
         internal const string Table = "store";
 
         internal static readonly string Id = nameof(Store.Id).ToSnakeCase();
-        internal static readonly string UserId = nameof(Store.UserId).ToSnakeCase();
-        internal static readonly string Name = nameof(Store.Name).ToSnakeCase();
+        internal static readonly string OwnerId = nameof(Store.OwnerId).ToSnakeCase();
         internal static readonly string Status = nameof(Store.Status).ToSnakeCase();
         internal static readonly string Tin = nameof(Store.Tin).ToSnakeCase();
         // TODO: add more.

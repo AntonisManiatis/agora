@@ -17,11 +17,10 @@ public sealed class Init : Migration
 
         Create.Table(TableName)
             .InSchema("stores")
-            .WithColumn("id").AsGuid().PrimaryKey().WithDefault(SystemMethods.NewGuid)
-            .WithColumn("user_id").AsGuid().NotNullable()
-            .WithColumn("name").AsString(25).NotNullable()
+            .WithColumn("id").AsGuid().PrimaryKey()
+            .WithColumn("owner_id").AsGuid().NotNullable()
             .WithColumn("status").AsString().NotNullable().WithDefaultValue("Pending")
-            .WithColumn("tin").AsString(9).NotNullable();
+            .WithColumn("tin").AsString(9).Nullable();
 
         Create.Table("store_category")
             .InSchema("stores")

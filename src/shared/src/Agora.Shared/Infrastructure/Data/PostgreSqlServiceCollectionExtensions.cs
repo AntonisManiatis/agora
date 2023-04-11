@@ -6,7 +6,7 @@ public static class PostgreSqlServiceCollectionExtensions
 {
     public static IServiceCollection AddPostgreSql(this IServiceCollection services, string connectionString)
     {
-        services.AddTransient<IDbConnector>(sp => new PostgreSqlDbConnector(connectionString));
+        services.AddTransient<IDbConnector>(_ => new PostgreSqlDbConnector(connectionString));
         return services;
     }
 }

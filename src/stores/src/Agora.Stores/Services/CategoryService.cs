@@ -1,3 +1,4 @@
+// TODO: Move to catalogs
 using Agora.Stores.Core.Stores;
 
 using ErrorOr;
@@ -48,7 +49,7 @@ sealed class CategoryService : ICategoryService
 
         store.AddCategory(command.Name);
 
-        _ = await storeRepository.AddAsync(store);
+        await storeRepository.AddAsync(store);
 
         // ? I don't like this, Do I really need to return a cat id?
         var categoryId = store.Categories

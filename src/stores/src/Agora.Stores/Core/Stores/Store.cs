@@ -1,23 +1,34 @@
 namespace Agora.Stores.Core.Stores;
 
-enum Status
-{
-    Pending,
-    Approved,
-    Rejected
-}
-
 sealed class Store
 {
     private readonly List<Category> categories = new();
 
-    internal Guid Id { get; set; }
-    internal Guid UserId { get; init; }
-    internal string Name { get; init; } = string.Empty;
-    internal Status Status { get; set; } = Status.Pending;
+    internal Store(
+        StoreId id,
+        OwnerId ownerId
+    )
+    {
+        Id = id;
+        OwnerId = ownerId;
+    }
+
+    internal static Store Create(
+        StoreId id,
+        OwnerId ownerId
+    )
+    {
+        return new Store(id, ownerId);
+    }
+
+    internal StoreId Id { get; }
+    internal OwnerId OwnerId { get; }
+    internal Status Status { get; private set; }
+
     // TODO: Introduce a value object here.
-    internal string Tin { get; init; } = string.Empty;
+    internal string? Tin { get; set; }
     internal TaxAddress TaxAddress { get; init; } = TaxAddress.Undefined;
+
     internal IReadOnlyList<Category> Categories => categories; // TODO: AsReadOnly?
 
     internal bool HasCategory(string name) => categories.Any(cat => cat.Name.Equals(name));

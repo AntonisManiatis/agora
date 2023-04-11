@@ -1,5 +1,4 @@
-﻿using Agora.Shared.Infrastructure.Messaging;
-using Agora.Stores.Contracts;
+﻿using Agora.Shared;
 using Agora.Stores.Core.Stores;
 
 using ErrorOr;
@@ -17,17 +16,10 @@ public record Store
     // TODO: What else?
 }
 
-public record OpenStoreCommand
-{
-    public Guid UserId { get; set; }
-
-    public string Name { get; init; } = string.Empty;
-    public TaxAddr TaxAddr { get; init; } = TaxAddr.Undefined;
-    // ? Or Tax Identification Number 
-    public string Tin { get; init; } = string.Empty;
-    // AKA GEMI in Greece.
-    public string? Brn { get; init; } // ? Could be specified later if it's not required immediately.
-}
+public record RegisterStoreCommand(
+    Guid StoreId,
+    Guid OwnerId
+);
 
 public record TaxAddr
 {
@@ -45,20 +37,16 @@ public interface IStoreService
 
     Task<IEnumerable<Store>> GetStoresAsync();
 
-    Task<ErrorOr<Guid>> OpenStoreAsync(OpenStoreCommand command);
+    Task<ErrorOr<Unit>> RegisterStoreAsync(RegisterStoreCommand command);
 }
 
 sealed class StoreService : IStoreService
 {
     private readonly IStoreRepository storeRepository;
-    private readonly IMessagePublisher publisher;
 
-    public StoreService(
-        IStoreRepository storeRepository,
-        IMessagePublisher publisher)
+    public StoreService(IStoreRepository storeRepository)
     {
         this.storeRepository = storeRepository;
-        this.publisher = publisher;
     }
 
     public async Task<ErrorOr<Store>> GetStoreAsync(Guid storeId)
@@ -77,32 +65,27 @@ sealed class StoreService : IStoreService
         throw new NotImplementedException();
     }
 
-    public async Task<ErrorOr<Guid>> OpenStoreAsync(OpenStoreCommand command)
+    public async Task<ErrorOr<Unit>> RegisterStoreAsync(RegisterStoreCommand command)
     {
         ArgumentNullException.ThrowIfNull(command);
         // TODO: Add "superficial" validation here.
         // TODO: Also I'll see if I can make a decorator and register it to DI so that it always validates a request
 
-        var exists = await storeRepository.ExistsAsync(command.Name);
-        if (exists)
-        {
-            return Error.Conflict(description: $"A store named {command.Name} already exists.");
-        }
+        // var exists = await storeRepository.ExistsAsync(command.Name);
+        // if (exists)
+        // {
+        //     return Error.Conflict(description: $"A store named {command.Name} already exists.");
+        // }
+
         // ? Is there a chance that a user cannot open multile stores? 
 
-        var store = new Core.Stores.Store
-        {
-            UserId = command.UserId,
-            Name = command.Name,
-            Tin = command.Tin,
-            // TaxAddress = command.TaxAddr.Adapt<Core.Stores.TaxAddress>() // TODO: Mapster fails because immutable, will fix later
-        };
+        var store = Core.Stores.Store.Create(
+            command.StoreId,
+            command.OwnerId
+        );
 
-        // Save to DB.
-        var storeId = await storeRepository.AddAsync(store);
+        await storeRepository.AddAsync(store);
 
-        await publisher.PublishAsync(new StoreOpened(command.UserId, storeId));
-
-        return storeId;
+        return new Unit();
     }
 }

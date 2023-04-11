@@ -3,12 +3,12 @@ using Agora.Stores.Services;
 namespace Agora.Stores.IntegrationTests;
 
 [Collection(nameof(PostgreSqlFixture))]
-public class ProductServiceTest : IAsyncLifetime
+public class InventoryServiceTest : IAsyncLifetime
 {
     private readonly PostgreSqlFixture fixture;
     private Guid existingStoreId;
 
-    public ProductServiceTest(PostgreSqlFixture fixture)
+    public InventoryServiceTest(PostgreSqlFixture fixture)
     {
         this.fixture = fixture;
     }
@@ -39,7 +39,7 @@ public class ProductServiceTest : IAsyncLifetime
     public async Task Adding_a_listing_to_a_non_existing_store_returns_an_error()
     {
         // Arrange
-        var productService = fixture.ProductService;
+        var inventoryService = fixture.ProductService;
 
         var storeId = Guid.NewGuid(); // Any random guid that doesn't exist
         var command = new ListProductCommand(
@@ -50,7 +50,7 @@ public class ProductServiceTest : IAsyncLifetime
         );
 
         // Act
-        var result = await productService.AddListingAsync(command);
+        var result = await inventoryService.AddListingAsync(command);
 
         // Assert
         Assert.Contains(Errors.Stores.NotFound, result.Errors);
@@ -60,7 +60,7 @@ public class ProductServiceTest : IAsyncLifetime
     public async Task Add() // TODO: Name
     {
         // Arrange
-        var productService = fixture.ProductService;
+        var inventoryService = fixture.ProductService;
 
         var productId = Guid.NewGuid();
         var command = new ListProductCommand(
@@ -71,7 +71,7 @@ public class ProductServiceTest : IAsyncLifetime
         );
 
         // Act
-        var result = await productService.AddListingAsync(command);
+        var result = await inventoryService.AddListingAsync(command);
 
         // Assert
         var expected = new Product(
@@ -80,23 +80,21 @@ public class ProductServiceTest : IAsyncLifetime
             "101-SB",
             10
         );
-        var actual = await productService.GetProductAsync(productId);
+        var actual = await inventoryService.GetProductAsync(productId);
 
         Assert.Equal(expected, actual.Value);
     }
 
     public async Task InitializeAsync()
     {
-        var command = new OpenStoreCommand
-        {
-            UserId = Guid.NewGuid(),
-            Name = "Testing inventory",
-            Tin = "000000000",
-            TaxAddr = TaxAddr.Undefined
-        };
+        var storeId = Guid.NewGuid();
+        var command = new RegisterStoreCommand(
+            storeId,
+            Guid.NewGuid()
+        );
 
-        var result = await fixture.StoreService.OpenStoreAsync(command);
-        this.existingStoreId = result.Value;
+        var result = await fixture.StoreService.RegisterStoreAsync(command);
+        this.existingStoreId = storeId;
     }
 
     public Task DisposeAsync() => Task.CompletedTask;

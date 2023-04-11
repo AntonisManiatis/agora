@@ -14,39 +14,22 @@ sealed class PostgreSqlStoreRepository : IStoreRepository
         this.connector = connector;
     }
 
-    public async Task<Guid> AddAsync(Store store)
+    public async Task AddAsync(Store store)
     {
         using var connection = await connector.ConnectAsync();
 
-        if (store.Id == Guid.Empty)
-        {
-            var storeId = await connection.ExecuteScalarAsync<Guid>(
-                $@"INSERT INTO {Sql.Schema}.{Sql.Stores.Table} 
-                ({Sql.Stores.UserId}, {Sql.Stores.Name}, {Sql.Stores.Status}, {Sql.Stores.Tin})
-                VALUES (@UserId, @Name, @Status, @Tin) RETURNING {Sql.Stores.Id}",
-                new
-                {
-                    UserId = store.UserId,
-                    Name = store.Name,
-                    Status = store.Status,
-                    Tin = store.Tin
-                }
-            );
-
-            return storeId;
-        }
-
+        // ! repos should not handle transactions!
         using var transaction = connection.BeginTransaction();
-        // Update the store. 
+        // Update the store.
+        var storeId = store.Id.Value;
         await connection.ExecuteAsync(
-            $@"UPDATE {Sql.Schema}.{Sql.Stores.Table}
-            SET {Sql.Stores.UserId}=@UserId, {Sql.Stores.Name}=@Name, {Sql.Stores.Status}=@Status, {Sql.Stores.Tin}=@Tin 
-            WHERE {Sql.Stores.Id}=@Id",
+            $@"INSERT INTO {Sql.Schema}.{Sql.Stores.Table}
+            ({Sql.Stores.Id}, {Sql.Stores.OwnerId}, {Sql.Stores.Status}, {Sql.Stores.Tin})
+            VALUES (@Id, @OwnerId, @Status, @Tin)",
             new
             {
-                Id = store.Id,
-                UserId = store.UserId,
-                Name = store.Name,
+                Id = storeId,
+                OwnerId = store.OwnerId.Value,
                 Status = store.Status,
                 Tin = store.Tin
             },
@@ -58,7 +41,7 @@ sealed class PostgreSqlStoreRepository : IStoreRepository
 
         // for this case since it's the easiest and not done often I'll delete the entire list and re-insert.
         await connection.ExecuteAsync($"DELETE FROM {Sql.Schema}.{Sql.Category.Table} WHERE {Sql.Category.StoreId}=@StoreId",
-            new { StoreId = store.Id },
+            new { StoreId = storeId },
             transaction
         );
 
@@ -69,7 +52,7 @@ sealed class PostgreSqlStoreRepository : IStoreRepository
             int categoryId = await connection.ExecuteScalarAsync<int>(
                 $@"INSERT INTO {Sql.Schema}.{Sql.Category.Table} ({Sql.Category.StoreId}, {Sql.Category.Name}) 
                 VALUES (@StoreId, @Name) RETURNING {Sql.Category.Id}",
-                new { StoreId = store.Id, Name = category.Name },
+                new { StoreId = storeId, Name = category.Name },
                 transaction
             );
 
@@ -79,10 +62,9 @@ sealed class PostgreSqlStoreRepository : IStoreRepository
         }
 
         transaction.Commit();
-        // TODO: I'm not sure if this should directly return an Id. 
-        return store.Id;
     }
 
+    /*
     public async Task<bool> ExistsAsync(string storeName)
     {
         using var connection = await connector.ConnectAsync();
@@ -94,17 +76,24 @@ sealed class PostgreSqlStoreRepository : IStoreRepository
 
         return exists;
     }
+    */
 
     public async Task<Store?> GetStoreAsync(Guid storeId)
     {
         using var connection = await connector.ConnectAsync();
 
         var id = new { Id = storeId };
-        var store = await connection.QueryFirstOrDefaultAsync<Store?>(
+        var storeEntity = await connection.QueryFirstOrDefaultAsync<StoreEntity?>(
             $"SELECT * FROM {Sql.Schema}.{Sql.Stores.Table} WHERE {Sql.Stores.Id} = @Id",
             id
         );
 
+        if (storeEntity is null)
+        {
+            return null;
+        }
+
+        /*
         if (store is not null)
         {
             var categories = await connection.QueryAsync<Category>(
@@ -117,7 +106,15 @@ sealed class PostgreSqlStoreRepository : IStoreRepository
                 store.AddCategory(category);
             }
         }
+        */
 
+        var store = new Store(
+            storeId,
+            storeEntity.OwnerId
+        );
+
+        store.Tin = storeEntity.Tin;
+        // TODO: status too
         return store;
     }
 

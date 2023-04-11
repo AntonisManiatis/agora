@@ -1,7 +1,5 @@
 using Agora.Stores.Services;
 
-using Dapper;
-
 using ErrorOr;
 
 namespace Agora.Stores.IntegrationTests;
@@ -17,26 +15,24 @@ public class StoreServiceTest
     }
 
     [Fact]
-    public async Task Returns_a_store_id_if_the_request_is_valid()
+    public async Task Returns_unit_if_the_request_is_valid()
     {
         // Arrange
         var storeService = fixture.StoreService;
 
-        var command = new OpenStoreCommand
-        {
-            UserId = Guid.NewGuid(),
-            Name = "Coffee Lab",
-            Tin = "000000000",
-            TaxAddr = TaxAddr.Undefined // TODO: Probably not a good idea but temp.
-        };
+        var command = new RegisterStoreCommand(
+            Guid.NewGuid(),
+            Guid.NewGuid()
+        );
 
         // Act
-        var result = await storeService.OpenStoreAsync(command);
+        var result = await storeService.RegisterStoreAsync(command);
 
         // Assert
-        Assert.NotEqual(default, result.Value);
+        Assert.Equal(default, result.Value);
     }
 
+    /* // TODO: Move to catalogs
     [Fact]
     public async Task Returns_an_error_if_the_provided_store_name_already_exists()
     {
@@ -49,21 +45,20 @@ public class StoreServiceTest
 
         var storeService = fixture.StoreService;
 
-        var command = new OpenStoreCommand
+        var command = new RegisterStoreCommand
         {
-            UserId = Guid.NewGuid(),
+            OwnerId = Guid.NewGuid(),
             Name = Name,
-            Tin = "000000000",
-            TaxAddr = TaxAddr.Undefined
         };
 
         // Act
-        var result = await storeService.OpenStoreAsync(command);
+        var result = await storeService.RegisterStoreAsync(command);
 
         // Assert
         // TODO: I hate having this test depend on the description.
         Assert.Contains(Error.Conflict(description: $"A store named {Name} already exists."), result.Errors);
     }
+    */
 
     [Fact]
     public async Task Retrieving_a_store_that_does_not_exist_returns_an_error()
@@ -77,33 +72,5 @@ public class StoreServiceTest
 
         // Assert
         Assert.Contains(Error.NotFound(), result.Errors);
-    }
-
-    [Fact]
-    public async Task An_application_is_in_pending_state_after_being_sumbitted()
-    {
-        // Arrange
-        var storeService = fixture.StoreService;
-        var command = new OpenStoreCommand
-        {
-            UserId = Guid.NewGuid(),
-            Name = "My store",
-            Tin = "000000000"
-        };
-
-        var applicationId = await storeService.OpenStoreAsync(command);
-
-        // Act
-        var result = await storeService.GetStoreAsync(applicationId.Value);
-
-        // Assert
-        var expected = new Store
-        {
-            Id = applicationId.Value,
-            Name = "My store",
-            Status = "Pending"
-        };
-
-        Assert.Equal(expected, result.Value);
     }
 }

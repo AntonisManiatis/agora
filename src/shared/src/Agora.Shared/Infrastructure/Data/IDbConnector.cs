@@ -4,5 +4,5 @@ namespace Agora.Shared.Infrastructure.Data;
 
 public interface IDbConnector
 {
-    Task<IDbConnection> ConnectAsync(); // ? Maybe ct?
+    Task<IDbConnection> ConnectAsync(CancellationToken cancellationToken = default);
 }

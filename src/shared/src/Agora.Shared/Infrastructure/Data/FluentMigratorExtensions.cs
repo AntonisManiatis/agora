@@ -12,9 +12,9 @@ public static class FluentMigratorExtensions
     {
         using (var scope = provider.CreateScope())
         {
-            var runner = scope.ServiceProvider.GetRequiredService<IMigrationRunner>();
+            var runner = scope.ServiceProvider.GetService<IMigrationRunner>();
             // Execute the migrations
-            runner.MigrateUp();
+            runner?.MigrateUp();
         }
     }
 
