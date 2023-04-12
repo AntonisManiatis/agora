@@ -3,6 +3,7 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
   <ItemGroup>
+    <PackageVersion Include="Castle.Core.AsyncInterceptor" Version="2.1.0" />
     <PackageVersion Include="Dapper" Version="2.0.123" />
     <PackageVersion Include="ErrorOr" Version="1.2.1" />
     <PackageVersion Include="FluentMigrator" Version="3.3.2" />

@@ -71,12 +71,6 @@ sealed class StoreService : IStoreService
         // TODO: Add "superficial" validation here.
         // TODO: Also I'll see if I can make a decorator and register it to DI so that it always validates a request
 
-        // var exists = await storeRepository.ExistsAsync(command.Name);
-        // if (exists)
-        // {
-        //     return Error.Conflict(description: $"A store named {command.Name} already exists.");
-        // }
-
         // ? Is there a chance that a user cannot open multile stores? 
 
         var store = Core.Stores.Store.Create(

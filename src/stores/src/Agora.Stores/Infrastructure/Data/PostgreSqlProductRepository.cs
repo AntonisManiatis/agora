@@ -20,9 +20,6 @@ sealed class PostgreSqlProductRepository : IProductRepository
 
         // TODO: What if a product already exists?
 
-        // ! Transaction is an application concern, we'll get back to this.
-        using var transaction = connection.BeginTransaction();
-
         _ = await connection.ExecuteAsync(
             $@"INSERT INTO {Sql.Schema}.{Sql.Product.Table}
             ({Sql.Product.Id}, {Sql.Product.StoreId}, {Sql.Product.Sku}, {Sql.Product.Quantity})
@@ -33,11 +30,8 @@ sealed class PostgreSqlProductRepository : IProductRepository
                 StoreId = product.StoreId.Value,
                 Sku = product.Sku,
                 Quantity = product.Quantity.Value
-            },
-            transaction
+            }
         );
-
-        transaction.Commit();
     }
 
     public async Task<Product?> GetAsync(ProductId productId)

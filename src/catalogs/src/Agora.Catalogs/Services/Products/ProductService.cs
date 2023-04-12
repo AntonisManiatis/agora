@@ -1,5 +1,5 @@
 using Agora.Catalogs.Infrastructure.Data;
-using Agora.Catalogs.Services.Products;
+using Agora.Catalogs.Infrastructure.Data.Entities;
 using Agora.Shared;
 
 using ErrorOr;
@@ -31,6 +31,7 @@ sealed class ProductService : IProductService
     {
         // TODO: Validate.
 
+        // ? Product is not published/active yet?
         var product = new Product(
             listing.Id,
             listing.Title,

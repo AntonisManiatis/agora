@@ -1,7 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <PackageReference Include="Castle.Core.AsyncInterceptor" />
     <PackageReference Include="Dapper" />
+    <PackageReference Include="ErrorOr" />
     <PackageReference Include="FluentMigrator.Runner" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
     <PackageReference Include="Npgsql" />

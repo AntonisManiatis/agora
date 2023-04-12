@@ -18,8 +18,6 @@ sealed class PostgreSqlStoreRepository : IStoreRepository
     {
         using var connection = await connector.ConnectAsync();
 
-        // ! repos should not handle transactions!
-        using var transaction = connection.BeginTransaction();
         // Update the store.
         var storeId = store.Id.Value;
         await connection.ExecuteAsync(
@@ -32,8 +30,7 @@ sealed class PostgreSqlStoreRepository : IStoreRepository
                 OwnerId = store.OwnerId.Value,
                 Status = store.Status,
                 Tin = store.Tin
-            },
-            transaction
+            }
         );
 
         // EF core has an api that tracks changes but with dapper there are other options:
@@ -41,8 +38,7 @@ sealed class PostgreSqlStoreRepository : IStoreRepository
 
         // for this case since it's the easiest and not done often I'll delete the entire list and re-insert.
         await connection.ExecuteAsync($"DELETE FROM {Sql.Schema}.{Sql.Category.Table} WHERE {Sql.Category.StoreId}=@StoreId",
-            new { StoreId = storeId },
-            transaction
+            new { StoreId = storeId }
         );
 
         foreach (var category in store.Categories)
@@ -52,31 +48,14 @@ sealed class PostgreSqlStoreRepository : IStoreRepository
             int categoryId = await connection.ExecuteScalarAsync<int>(
                 $@"INSERT INTO {Sql.Schema}.{Sql.Category.Table} ({Sql.Category.StoreId}, {Sql.Category.Name}) 
                 VALUES (@StoreId, @Name) RETURNING {Sql.Category.Id}",
-                new { StoreId = storeId, Name = category.Name },
-                transaction
+                new { StoreId = storeId, Name = category.Name }
             );
 
             category.Id = categoryId;
 
             // TODO: Categories have products also.
         }
-
-        transaction.Commit();
     }
-
-    /*
-    public async Task<bool> ExistsAsync(string storeName)
-    {
-        using var connection = await connector.ConnectAsync();
-
-        var exists = await connection.ExecuteScalarAsync<bool>(
-            $"SELECT COUNT(1) FROM {Sql.Schema}.{Sql.Stores.Table} WHERE {Sql.Stores.Name}=@Name",
-            new { Name = storeName }
-        );
-
-        return exists;
-    }
-    */
 
     public async Task<Store?> GetStoreAsync(Guid storeId)
     {

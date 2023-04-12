@@ -22,7 +22,8 @@ var configuration = builder.Configuration;
 var connectionString = configuration.GetConnectionString("PostgreSql")!;
 // Shared infrastructure.
 builder.Services.AddShared(connectionString);
-builder.Services.AddMigrations(connectionString, // ! there has to be a better way to do this :D
+builder.Services.AddMigrations(connectionString,
+    // ! there has to be a better way to do this :D
     typeof(Agora.Identity.IdentityServiceCollectionExtensions).Assembly,
     typeof(Agora.Stores.StoreServiceCollectionExtensions).Assembly
 );

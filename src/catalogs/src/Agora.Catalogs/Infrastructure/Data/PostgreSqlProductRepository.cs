@@ -1,5 +1,5 @@
 
-using Agora.Catalogs.Services.Products;
+using Agora.Catalogs.Infrastructure.Data.Entities;
 using Agora.Shared.Infrastructure.Data;
 
 using Dapper;

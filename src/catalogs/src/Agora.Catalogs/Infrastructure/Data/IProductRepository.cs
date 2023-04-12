@@ -1,4 +1,4 @@
-using Agora.Catalogs.Services.Products;
+using Agora.Catalogs.Infrastructure.Data.Entities;
 
 namespace Agora.Catalogs.Infrastructure.Data;
 

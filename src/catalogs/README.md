@@ -1,3 +1,3 @@
 # Agora Catalogs
 
-Contains product listing details & categories for both Agora and each individual store.
+Contains product & store listing details & categories for both Agora and each individual store.

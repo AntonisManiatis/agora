@@ -1,54 +1,25 @@
+using Agora.API.Stores.Models;
 using Agora.Stores.Services;
-
-using Mapster;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Agora.API.Stores;
 
-public record StorePreferences(
-    string Language,
-    string? Country, // Optional
-    string? Currency // Optional
-);
-
-public record RegisterStoreRequest(
-    StorePreferences Preferences,
-    string Name
-);
-
-// TaxAddress TaxAddress,
-// // ? Or Tax Identification Number 
-// string Tin,
-// // AKA GEMI in Greece.
-// string? Brn,
-// IEnumerable<ProductListing> Listings
-
-public record ProductListing(
-    string Title,
-    string Description
-);
-
-public record TaxAddress
-{
-    public static readonly TaxAddress Undefined = new();
-
-    public string Street { get; init; } = string.Empty;
-    public string City { get; init; } = string.Empty;
-    public string State { get; init; } = string.Empty;
-    public string ZipCode { get; init; } = string.Empty;
-}
-
 [Route("[controller]")]
 [Produces("application/json")]
 public class StoresController : ApiController
 {
     private readonly IStoreService storeService;
+    private readonly Agora.Catalogs.Services.Stores.IStoreService listStoreService;
 
-    public StoresController(IStoreService storeService)
+    public StoresController(
+        IStoreService storeService,
+        Agora.Catalogs.Services.Stores.IStoreService listStoreService
+    )
     {
         this.storeService = storeService;
+        this.listStoreService = listStoreService;
     }
 
     /// <summary>
@@ -60,18 +31,37 @@ public class StoresController : ApiController
     public async Task<IActionResult> RegisterStoreAsync(RegisterStoreRequest req)
     {
         var storeId = Guid.NewGuid(); // TODO: Figure out who makes this
+        var userId = Guid.NewGuid();  // TODO: GET user by token
+
         var command = new RegisterStoreCommand(
             storeId,
-            Guid.NewGuid() // TODO: GET user by token
+            userId
         );
 
-        var result = await storeService.RegisterStoreAsync(command);
-
-        return result.Match<IActionResult>(
-            // ! see if I can avoid the allocation.
-            storeId => CreatedAtAction("GetStore", new { storeId = storeId }, storeId),
-            errors => Problem(errors)
+        // ! should be in the same transaction.
+        var result = await listStoreService.ListStoreAsync(
+            new Agora.Catalogs.Services.Stores.ListStoreCommand(
+                storeId,
+                req.Name,
+                req.Preferences.Language
+            )
         );
+
+        if (result.IsError)
+        {
+            return Problem(result.Errors);
+        }
+
+        result = await storeService.RegisterStoreAsync(command);
+
+        if (result.IsError)
+        {
+            return Problem(result.Errors);
+        }
+
+        // ! see if I can avoid the allocation.
+        // ? should I return the entire store again?
+        return CreatedAtAction("GetStore", new { storeId = storeId }, storeId);
     }
 
     [HttpGet]

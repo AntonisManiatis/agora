@@ -11,11 +11,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\stores\src\Agora.Stores\Agora.Stores.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <ProjectReference Include="..\..\..\catalogs\src\Agora.Catalogs\Agora.Catalogs.csproj" />
     <ProjectReference Include="..\..\..\identity\src\Agora.Identity\Agora.Identity.csproj" />
+    <ProjectReference Include="..\..\..\stores\src\Agora.Stores\Agora.Stores.csproj" />
   </ItemGroup>
 
 </Project>

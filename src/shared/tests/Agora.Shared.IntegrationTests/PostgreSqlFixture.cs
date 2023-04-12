@@ -14,14 +14,14 @@ namespace Agora.Shared.IntegrationTests;
 /// <summary>
 /// Spins up a PostgreSql docker container and creates a database called agora. 
 /// </summary>
-public abstract class PostgreSqlFixture : IAsyncLifetime
+public class PostgreSqlFixture : IAsyncLifetime
 {
     private readonly PostgreSqlContainer dbContainer =
         new PostgreSqlBuilder().Build();
 
     private ServiceProvider? provider;
 
-    protected abstract Assembly[] Migrations { get; }
+    protected virtual Assembly[] Migrations { get; } = new Assembly[0];
 
     public string? ConnectionString { get; private set; }
 
