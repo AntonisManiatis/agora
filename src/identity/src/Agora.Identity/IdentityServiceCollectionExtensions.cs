@@ -23,10 +23,10 @@ public static class IdentityServiceCollectionExtensions
 
         // ? Can this be a singleton?
         // See: https://docs.fluentvalidation.net/en/latest/aspnet.html#getting-started
-        services.AddTransient<IValidator<RegisterCommand>, RegisterCommandValidator>();
+        services.AddScoped<IValidator<RegisterCommand>, RegisterCommandValidator>();
         services.AddScoped<IUserService, UserService>();
 
-        services.AddTransient<IValidator<IssueTokenCommand>, IssueTokenCommandValidator>();
+        services.AddScoped<IValidator<IssueTokenCommand>, IssueTokenCommandValidator>();
         services.AddScoped<ITokenService, TokenService>();
         return services;
     }

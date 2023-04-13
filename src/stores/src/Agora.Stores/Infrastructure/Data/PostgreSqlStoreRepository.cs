@@ -9,14 +9,11 @@ sealed class PostgreSqlStoreRepository : IStoreRepository
 {
     private readonly IDbConnector connector;
 
-    public PostgreSqlStoreRepository(IDbConnector connector)
-    {
-        this.connector = connector;
-    }
+    public PostgreSqlStoreRepository(IDbConnector connector) => this.connector = connector;
 
     public async Task AddAsync(Store store)
     {
-        using var connection = await connector.ConnectAsync();
+        var connection = await connector.ConnectAsync();
 
         // Update the store.
         var storeId = store.Id.Value;
@@ -59,7 +56,7 @@ sealed class PostgreSqlStoreRepository : IStoreRepository
 
     public async Task<Store?> GetStoreAsync(Guid storeId)
     {
-        using var connection = await connector.ConnectAsync();
+        var connection = await connector.ConnectAsync();
 
         var id = new { Id = storeId };
         var storeEntity = await connection.QueryFirstOrDefaultAsync<StoreEntity?>(

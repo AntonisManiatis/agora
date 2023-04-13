@@ -4,20 +4,18 @@ using Agora.Shared;
 namespace Agora.Catalogs.IntegrationTests;
 
 [Collection("Catalog")]
-public class ProductServiceTest : IClassFixture<ProductServiceFixture>
+public class ProductServiceTest : IClassFixture<ServiceFixture>
 {
-    private readonly ProductServiceFixture fixture;
+    private readonly ServiceFixture fixture;
 
-    public ProductServiceTest(ProductServiceFixture fixture)
-    {
-        this.fixture = fixture;
-    }
+    public ProductServiceTest(ServiceFixture fixture) => this.fixture = fixture;
 
     [Fact]
     public async Task Test1Async() // TODO: rename
     {
         // Arrange
-        var productService = fixture.Service;
+        using var scope = fixture.ProductService;
+        var productService = scope.Service;
         var command = new ListProductCommand(
             Guid.NewGuid(),
             new List<byte[]>(),

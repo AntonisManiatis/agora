@@ -28,5 +28,9 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Agora.Shared\Agora.Shared.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
+  </ItemGroup>
   
 </Project>

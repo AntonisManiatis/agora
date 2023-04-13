@@ -9,14 +9,11 @@ sealed class PostgreSqlStoreRepository : IStoreRepository
 {
     private readonly IDbConnector connector;
 
-    public PostgreSqlStoreRepository(IDbConnector connector)
-    {
-        this.connector = connector;
-    }
+    public PostgreSqlStoreRepository(IDbConnector connector) => this.connector = connector;
 
     public async Task<bool> ExistsAsync(string storeName)
     {
-        using var connection = await connector.ConnectAsync();
+        var connection = await connector.ConnectAsync();
 
         var exists = await connection.ExecuteScalarAsync<bool>(
             $"SELECT COUNT(1) FROM {Sql.Schema}.{Sql.Store.Table} WHERE {Sql.Store.Name}=@Name",
@@ -28,7 +25,7 @@ sealed class PostgreSqlStoreRepository : IStoreRepository
 
     public async Task SaveAsync(Store store)
     {
-        using var connection = await connector.ConnectAsync();
+        var connection = await connector.ConnectAsync();
 
         _ = await connection.ExecuteAsync(
             $@"INSERT INTO {Sql.Schema}.{Sql.Store.Table}

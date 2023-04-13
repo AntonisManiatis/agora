@@ -1,18 +1,13 @@
 using Agora.Catalogs.Services.Stores;
 
-using ErrorOr;
-
 namespace Agora.Catalogs.IntegrationTests;
 
 [Collection("Catalog")]
-public class StoreServiceTest : IClassFixture<StoreServiceFixture>
+public class StoreServiceTest
 {
-    private readonly StoreServiceFixture fixture;
+    private readonly ServiceFixture fixture;
 
-    public StoreServiceTest(StoreServiceFixture fixture)
-    {
-        this.fixture = fixture;
-    }
+    public StoreServiceTest(ServiceFixture fixture) => this.fixture = fixture;
 
     [Fact]
     public async Task Returns_an_error_if_the_provided_store_name_already_exists()
@@ -20,7 +15,8 @@ public class StoreServiceTest : IClassFixture<StoreServiceFixture>
         // Arrange
         const string Name = "Pizza Palace";
 
-        var service = fixture.Service;
+        using var scope = fixture.StoreService;
+        var service = scope.Service;
 
         await service.ListStoreAsync(new ListStoreCommand(
            Guid.NewGuid(),

@@ -10,14 +10,11 @@ sealed class PostgreSqlProductRepository : IProductRepository
 {
     private readonly IDbConnector connector;
 
-    public PostgreSqlProductRepository(IDbConnector connector)
-    {
-        this.connector = connector;
-    }
+    public PostgreSqlProductRepository(IDbConnector connector) => this.connector = connector;
 
     public async Task SaveAsync(Product product)
     {
-        using var connection = await connector.ConnectAsync();
+        var connection = await connector.ConnectAsync();
 
         await connection.ExecuteAsync(
             $@"INSERT INTO {Sql.Schema}.{Sql.Product.Table}

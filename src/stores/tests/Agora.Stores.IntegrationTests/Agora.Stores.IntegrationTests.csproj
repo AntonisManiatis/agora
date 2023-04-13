@@ -26,6 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\shared\tests\Agora.Shared.IntegrationTests\Agora.Shared.IntegrationTests.csproj" />
     <ProjectReference Include="..\..\src\Agora.Stores\Agora.Stores.csproj" />
   </ItemGroup>
   

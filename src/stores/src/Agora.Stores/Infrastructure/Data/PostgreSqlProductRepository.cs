@@ -9,14 +9,11 @@ sealed class PostgreSqlProductRepository : IProductRepository
 {
     private readonly IDbConnector connector;
 
-    public PostgreSqlProductRepository(IDbConnector connector)
-    {
-        this.connector = connector;
-    }
+    public PostgreSqlProductRepository(IDbConnector connector) => this.connector = connector;
 
     public async Task AddAsync(Product product)
     {
-        using var connection = await connector.ConnectAsync();
+        var connection = await connector.ConnectAsync();
 
         // TODO: What if a product already exists?
 
@@ -36,7 +33,7 @@ sealed class PostgreSqlProductRepository : IProductRepository
 
     public async Task<Product?> GetAsync(ProductId productId)
     {
-        using var connection = await connector.ConnectAsync();
+        var connection = await connector.ConnectAsync();
 
         var id = new { Id = productId.Value };
         // TODO: What if this is null?

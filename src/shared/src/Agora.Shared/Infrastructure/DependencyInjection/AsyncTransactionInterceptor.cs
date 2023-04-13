@@ -19,6 +19,7 @@ sealed class AsyncTransactionInterceptor : AsyncInterceptorBase
         Func<IInvocation, IInvocationProceedInfo, Task> proceed
     )
     {
+        // TODO: Only if method has [Transactional]
         using var connection = await connector.ConnectAsync();
 
         using (var transaction = connection.BeginTransaction())
@@ -26,6 +27,8 @@ sealed class AsyncTransactionInterceptor : AsyncInterceptorBase
             await proceed(invocation, proceedInfo);
 
             transaction.Commit();
+
+            // TODO: Also post events to broker here.
         }
     }
 
@@ -35,6 +38,7 @@ sealed class AsyncTransactionInterceptor : AsyncInterceptorBase
         Func<IInvocation, IInvocationProceedInfo, Task<TResult>> proceed
     )
     {
+        // TODO: Only if method has [Transactional]
         using var connection = await connector.ConnectAsync();
 
         using (var transaction = connection.BeginTransaction())
@@ -48,6 +52,7 @@ sealed class AsyncTransactionInterceptor : AsyncInterceptorBase
             }
 
             transaction.Commit();
+            // TODO: Also post events to broker here.
             return result;
         }
     }

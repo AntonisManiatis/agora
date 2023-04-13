@@ -4,21 +4,19 @@ using ErrorOr;
 
 namespace Agora.Stores.IntegrationTests;
 
-[Collection(nameof(PostgreSqlFixture))]
+[Collection("Stores")]
 public class StoreServiceTest
 {
-    private readonly PostgreSqlFixture fixture;
+    private readonly ServiceFixture fixture;
 
-    public StoreServiceTest(PostgreSqlFixture fixture)
-    {
-        this.fixture = fixture;
-    }
+    public StoreServiceTest(ServiceFixture fixture) => this.fixture = fixture;
 
     [Fact]
     public async Task Returns_unit_if_the_request_is_valid()
     {
         // Arrange
-        var storeService = fixture.StoreService;
+        using var scope = fixture.StoreService;
+        var storeService = scope.Service;
 
         var command = new RegisterStoreCommand(
             Guid.NewGuid(),
@@ -36,7 +34,9 @@ public class StoreServiceTest
     public async Task Retrieving_a_store_that_does_not_exist_returns_an_error()
     {
         // Arrange
-        var storeService = fixture.StoreService;
+        using var scope = fixture.StoreService;
+        var storeService = scope.Service;
+
         var applicationId = Guid.NewGuid();
 
         // Act

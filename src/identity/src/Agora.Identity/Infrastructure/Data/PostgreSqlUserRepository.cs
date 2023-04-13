@@ -9,14 +9,11 @@ internal sealed class PostgreSqlUserRepository : IUserRepository
 {
     private readonly IDbConnector connector;
 
-    public PostgreSqlUserRepository(IDbConnector connector)
-    {
-        this.connector = connector;
-    }
+    public PostgreSqlUserRepository(IDbConnector connector) => this.connector = connector;
 
     public async Task<bool> ExistsAsync(string email)
     {
-        using var connection = await connector.ConnectAsync();
+        var connection = await connector.ConnectAsync();
 
         var exists = await connection.ExecuteScalarAsync<bool>(
             "SELECT COUNT(*) FROM identity.user WHERE email=@Email",
@@ -28,7 +25,7 @@ internal sealed class PostgreSqlUserRepository : IUserRepository
 
     public async Task<User?> GetUserByEmail(string email)
     {
-        using var connection = await connector.ConnectAsync();
+        var connection = await connector.ConnectAsync();
 
         var user = await connection.QueryFirstOrDefaultAsync<User>(
             "SELECT * FROM identity.user WHERE email=@Email",
@@ -40,7 +37,7 @@ internal sealed class PostgreSqlUserRepository : IUserRepository
 
     public async Task<Guid> AddAsync(User user)
     {
-        using var connection = await connector.ConnectAsync();
+        var connection = await connector.ConnectAsync();
 
         var userId = await connection.ExecuteScalarAsync<Guid>(
             $"INSERT INTO identity.user (first_name, last_name, email, password) VALUES (@FirstName, @LastName, @Email, @Password) RETURNING id",

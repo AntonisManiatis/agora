@@ -13,8 +13,8 @@ public static class CatalogsServiceCollectionExtensions
         // Infrastructure
         services.AddRepositories();
 
-        services.AddSingleton<IProductService, ProductService>();
-        services.AddSingleton<IStoreService, StoreService>();
+        services.AddScoped<IProductService, ProductService>();
+        services.AddScoped<IStoreService, StoreService>();
         return services;
     }
 }

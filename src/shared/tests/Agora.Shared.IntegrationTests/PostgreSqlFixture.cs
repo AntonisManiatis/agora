@@ -1,6 +1,3 @@
-using System.Reflection;
-
-using Agora.Shared.Infrastructure;
 using Agora.Shared.Infrastructure.Data;
 
 using Dapper;
@@ -19,39 +16,32 @@ public class PostgreSqlFixture : IAsyncLifetime
     private readonly PostgreSqlContainer dbContainer =
         new PostgreSqlBuilder().Build();
 
-    private ServiceProvider? provider;
-
-    protected virtual Assembly[] Migrations { get; } = new Assembly[0];
-
     public string? ConnectionString { get; private set; }
 
     public async Task InitializeAsync()
     {
         await dbContainer.StartAsync();
 
-        ConnectionString = dbContainer.GetConnectionString();
+        var connectionString = dbContainer.GetConnectionString();
+        ConnectionString = connectionString;
 
         var services = new ServiceCollection();
-        services.AddShared(ConnectionString);
-        services.AddMigrations(ConnectionString, Migrations);
+        services.AddPostgreSql(connectionString);
 
-        provider = services.BuildServiceProvider(validateScopes: true);
+        using (var provider = services.BuildServiceProvider(validateScopes: true))
+        {
+            using (var scope = provider.CreateScope())
+            {
+                var connector = scope.ServiceProvider.GetRequiredService<IDbConnector>();
+                using var connection = await connector.ConnectAsync();
 
-        var connector = provider.GetRequiredService<IDbConnector>();
-        using var connection = await connector.ConnectAsync();
-
-        await connection.ExecuteAsync(@"
-            CREATE DATABASE agora;
-            CREATE EXTENSION IF NOT EXISTS ""uuid-ossp"";
-        ");
-
-        provider.MigrateUp();
+                await connection.ExecuteAsync(@"
+                    CREATE DATABASE agora;
+                    CREATE EXTENSION IF NOT EXISTS ""uuid-ossp"";
+                ");
+            }
+        }
     }
 
-    public async Task DisposeAsync()
-    {
-        await dbContainer.DisposeAsync();
-
-        provider?.Dispose();
-    }
+    public async Task DisposeAsync() => await dbContainer.DisposeAsync();
 }

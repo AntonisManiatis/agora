@@ -1,7 +1,4 @@
 using Agora.Identity.Core;
-using Agora.Identity.Infrastructure.Data.Migrations;
-
-using FluentMigrator.Runner;
 
 using Microsoft.Extensions.DependencyInjection;
 
@@ -11,7 +8,7 @@ public static class DatabaseServiceCollectionExtensions
 {
     public static IServiceCollection AddRepositories(this IServiceCollection services)
     {
-        services.AddSingleton<IUserRepository, PostgreSqlUserRepository>();
+        services.AddScoped<IUserRepository, PostgreSqlUserRepository>();
         return services;
     }
 }

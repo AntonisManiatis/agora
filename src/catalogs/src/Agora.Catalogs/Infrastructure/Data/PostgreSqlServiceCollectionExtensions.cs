@@ -6,8 +6,8 @@ static class PostgreSqlServiceCollectionExtensions
 {
     internal static IServiceCollection AddRepositories(this IServiceCollection services)
     {
-        services.AddSingleton<IProductRepository, PostgreSqlProductRepository>();
-        services.AddSingleton<IStoreRepository, PostgreSqlStoreRepository>();
+        services.AddScoped<IProductRepository, PostgreSqlProductRepository>();
+        services.AddScoped<IStoreRepository, PostgreSqlStoreRepository>();
         return services;
     }
 }

@@ -19,12 +19,12 @@ public static class StoreServiceCollectionExtensions
 
         // ? Can this be a singleton?
         // See: https://docs.fluentvalidation.net/en/latest/aspnet.html#getting-started
-        services.AddTransient<IValidator<RegisterStoreCommand>, RegisterStoreCommandValidator>();
+        services.AddScoped<IValidator<RegisterStoreCommand>, RegisterStoreCommandValidator>();
         services.AddScoped<IStoreService, StoreService>(); // ? Singleton maybe?
 
         services.AddScoped<ICategoryService, CategoryService>();
 
-        services.AddTransient<IValidator<ListProductCommand>, ListProductCommandValidator>();
+        services.AddScoped<IValidator<ListProductCommand>, ListProductCommandValidator>();
         services.AddScoped<IInventoryService, InventoryService>();
         return services;
     }

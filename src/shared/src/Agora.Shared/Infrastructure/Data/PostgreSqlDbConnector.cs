@@ -4,33 +4,25 @@ using Npgsql;
 
 namespace Agora.Shared.Infrastructure.Data;
 
-sealed class PostgreSqlDbConnector : IDbConnector, IDisposable
+sealed class PostgreSqlDbConnector : IDbConnector, IDisposable, IAsyncDisposable
 {
-    private readonly string connectionString;
-    private readonly Lazy<Task<IDbConnection>> holder;
+    private readonly NpgsqlConnection connection;
 
-    public PostgreSqlDbConnector(string connectionString)
-    {
-        this.connectionString = connectionString;
-        this.holder = new Lazy<Task<IDbConnection>>(async () =>
-        {
-            var connection = new NpgsqlConnection(connectionString);
-            // TODO: I need: https://devblogs.microsoft.com/pfxteam/asynclazyt/
-            await connection.OpenAsync();
-            return connection;
-        });
-    }
+    public PostgreSqlDbConnector(string connectionString) =>
+        this.connection = new NpgsqlConnection(connectionString);
 
     public async Task<IDbConnection> ConnectAsync(CancellationToken cancellationToken = default)
     {
-        var connection = new NpgsqlConnection(connectionString);
-        // TODO: I need: https://devblogs.microsoft.com/pfxteam/asynclazyt/
-        await connection.OpenAsync(cancellationToken);
+        if (connection.State != ConnectionState.Open)
+        {
+            await connection.OpenAsync(cancellationToken);
+        }
+
         return connection;
     }
 
-    public void Dispose()
-    {
-        // TODO: Dispose the connection
-    }
+    public void Dispose() => connection.Dispose();
+
+    public ValueTask DisposeAsync() => connection.DisposeAsync();
+
 }

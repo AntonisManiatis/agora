@@ -2,22 +2,20 @@ using Agora.Stores.Services;
 
 namespace Agora.Stores.IntegrationTests;
 
-[Collection(nameof(PostgreSqlFixture))]
+[Collection("Stores")]
 public class InventoryServiceTest : IAsyncLifetime
 {
-    private readonly PostgreSqlFixture fixture;
+    private readonly ServiceFixture fixture;
     private Guid existingStoreId;
 
-    public InventoryServiceTest(PostgreSqlFixture fixture)
-    {
-        this.fixture = fixture;
-    }
+    public InventoryServiceTest(ServiceFixture fixture) => this.fixture = fixture;
 
     [Fact]
     public async Task Providing_any_of_the_following_args_returns_a_validation_error()
     {
         // Arrange
-        var productService = fixture.ProductService;
+        using var scope = fixture.InventoryService;
+        var inventoryService = scope.Service;
         var command = new ListProductCommand(
             Guid.Empty,
             Guid.Empty,
@@ -26,7 +24,7 @@ public class InventoryServiceTest : IAsyncLifetime
         );
 
         // Act
-        var result = await productService.AddListingAsync(command);
+        var result = await inventoryService.AddListingAsync(command);
 
         // Assert
         var codes = result.Errors.Select(err => err.Code);
@@ -39,7 +37,8 @@ public class InventoryServiceTest : IAsyncLifetime
     public async Task Adding_a_listing_to_a_non_existing_store_returns_an_error()
     {
         // Arrange
-        var inventoryService = fixture.ProductService;
+        using var scope = fixture.InventoryService;
+        var inventoryService = scope.Service;
 
         var storeId = Guid.NewGuid(); // Any random guid that doesn't exist
         var command = new ListProductCommand(
@@ -60,7 +59,8 @@ public class InventoryServiceTest : IAsyncLifetime
     public async Task Add() // TODO: Name
     {
         // Arrange
-        var inventoryService = fixture.ProductService;
+        using var scope = fixture.InventoryService;
+        var inventoryService = scope.Service;
 
         var productId = Guid.NewGuid();
         var command = new ListProductCommand(
@@ -93,7 +93,8 @@ public class InventoryServiceTest : IAsyncLifetime
             Guid.NewGuid()
         );
 
-        var result = await fixture.StoreService.RegisterStoreAsync(command);
+        using var scope = fixture.StoreService;
+        var result = await scope.Service.RegisterStoreAsync(command);
         this.existingStoreId = storeId;
     }
 

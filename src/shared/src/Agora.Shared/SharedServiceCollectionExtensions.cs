@@ -2,8 +2,6 @@ using Agora.Shared.Infrastructure.Data;
 using Agora.Shared.Infrastructure.DependencyInjection;
 using Agora.Shared.Infrastructure.Messaging;
 
-using Castle.DynamicProxy;
-
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Agora.Shared;
@@ -22,10 +20,7 @@ public static class SharedServiceCollectionExtensions
         services.AddPostgreSql(connectionString);
 
         // Transactions
-        services.AddSingleton<ProxyGenerator>();
-        // ? Maybe should be transient
-        services.AddScoped<IInterceptor, TransactionInterceptor>();
-        services.AddScoped<AsyncTransactionInterceptor>();
+        services.AddTransactions();
 
         // Messaging services.
         // TODO: Use MassTransit soon-ish.

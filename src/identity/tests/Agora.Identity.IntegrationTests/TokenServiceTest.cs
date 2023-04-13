@@ -3,21 +3,19 @@ using Agora.Identity.Services;
 
 namespace Agora.Identity.IntegrationTests;
 
-[Collection(nameof(PostgreSqlFixture))]
+[Collection("Identity")]
 public class TokenServiceTest
 {
-    private readonly PostgreSqlFixture fixture;
+    private readonly ServiceFixture fixture;
 
-    public TokenServiceTest(PostgreSqlFixture fixture)
-    {
-        this.fixture = fixture;
-    }
+    public TokenServiceTest(ServiceFixture fixture) => this.fixture = fixture;
 
     [Fact]
     public async Task Providing_invalid_properties_returns_a_validation_error()
     {
         // Arrange
-        var tokenService = fixture.TokenService;
+        using var scope = fixture.TokenService;
+        var tokenService = scope.Service;
         var invalidRequest = new IssueTokenCommand("test", "");
 
         // Act
@@ -33,7 +31,8 @@ public class TokenServiceTest
     public async Task Authentication_returns_an_error_if_user_with_given_email_does_not_exist()
     {
         // Arrange
-        var tokenService = fixture.TokenService;
+        using var scope = fixture.TokenService;
+        var tokenService = scope.Service;
         var request = new IssueTokenCommand("test12321@test.net", "Apassword!");
 
         // Act
@@ -48,9 +47,15 @@ public class TokenServiceTest
     public async Task Authentication_returns_an_error_if_user_exists_but_password_does_not_match()
     {
         // Arrange
-        var tokenService = fixture.TokenService;
+        using var scope = fixture.TokenService;
+        var tokenService = scope.Service;
+
         var email = "test12321@test.net";
-        await fixture.UserService.RegisterUserAsync(new RegisterCommand("Test", "Test", email, "Apassword"));
+        using (var scope2 = fixture.UserService)
+        {
+            await scope2.Service.RegisterUserAsync(new RegisterCommand("Test", "Test", email, "Apassword"));
+        }
+
         var request = new IssueTokenCommand(email, "doesnotmatch");
 
         // Act
@@ -65,11 +70,16 @@ public class TokenServiceTest
     public async Task Returns_a_token_if_credentials_are_ok()
     {
         // Arrange
-        var tokenService = fixture.TokenService;
+        using var scope = fixture.TokenService;
+        var tokenService = scope.Service;
+
         var email = "test12321@test.net";
         var password = "Apassword";
 
-        await fixture.UserService.RegisterUserAsync(new RegisterCommand("Test", "Test", email, password));
+        using (var scope2 = fixture.UserService)
+        {
+            await scope2.Service.RegisterUserAsync(new RegisterCommand("Test", "Test", email, password));
+        }
 
         var request = new IssueTokenCommand(email, password);
 
