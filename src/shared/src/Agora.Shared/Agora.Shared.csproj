@@ -5,6 +5,7 @@
     <PackageReference Include="Dapper" />
     <PackageReference Include="ErrorOr" />
     <PackageReference Include="FluentMigrator.Runner" />
+    <PackageReference Include="MassTransit.Abstractions" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
     <PackageReference Include="Npgsql" />
   </ItemGroup>

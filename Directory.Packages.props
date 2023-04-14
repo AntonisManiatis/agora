@@ -11,6 +11,8 @@
     <PackageVersion Include="FluentMigrator.Runner.Postgres" Version="3.3.2" />
     <PackageVersion Include="FluentValidation" Version="11.5.1" />
     <PackageVersion Include="Mapster" Version="7.3.0" />
+    <PackageVersion Include="MassTransit.Abstractions" Version="8.0.14" />
+    <PackageVersion Include="MassTransit.RabbitMQ" Version="8.0.14" />
     <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="7.0.4" />
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="7.0.4" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />

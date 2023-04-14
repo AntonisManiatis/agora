@@ -11,6 +11,8 @@ using Agora.Stores;
 
 using ErrorOr;
 
+using MassTransit;
+
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -31,6 +33,19 @@ builder.Services.AddMigrations(connectionString,
     typeof(Agora.Identity.IdentityServiceCollectionExtensions).Assembly,
     typeof(Agora.Stores.StoreServiceCollectionExtensions).Assembly
 );
+
+// Messaging infrastructure
+builder.Services.AddMassTransit(options =>
+{
+    // TODO: Add outbox/inbox.
+    // it seems like I can make EFcore work with ADO.net transactions.
+    // https://learn.microsoft.com/en-us/ef/core/saving/transactions#using-external-dbtransactions-relational-databases-only
+
+    // TODO: each service registers their sagas, etc here.
+
+    // TODO: Use RabbitMQ once I set up docker stuff
+    options.UsingInMemory();
+});
 
 // Catalog services.
 builder.Services.AddCatalogs();
