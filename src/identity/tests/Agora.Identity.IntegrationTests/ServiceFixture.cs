@@ -10,7 +10,7 @@ namespace Agora.Identity.IntegrationTests;
 
 public class ServiceFixture : IDisposable
 {
-    private ServiceProvider? provider;
+    private readonly ServiceProvider? provider;
 
     public ServiceFixture(PostgreSqlFixture fixture)
     {

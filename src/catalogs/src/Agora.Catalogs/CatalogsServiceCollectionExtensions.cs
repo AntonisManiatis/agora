@@ -1,8 +1,8 @@
-using Agora.Catalogs.Services;
 using Agora.Catalogs.Infrastructure.Data;
+using Agora.Catalogs.Services;
+using Agora.Catalogs.Services.Stores;
 
 using Microsoft.Extensions.DependencyInjection;
-using Agora.Catalogs.Services.Stores;
 
 namespace Agora.Catalogs;
 
