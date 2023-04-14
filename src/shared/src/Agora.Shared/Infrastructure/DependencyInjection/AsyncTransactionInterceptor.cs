@@ -1,3 +1,5 @@
+using System.Reflection;
+
 using Agora.Shared.Infrastructure.Data;
 
 using Castle.DynamicProxy;
@@ -19,16 +21,24 @@ sealed class AsyncTransactionInterceptor : AsyncInterceptorBase
         Func<IInvocation, IInvocationProceedInfo, Task> proceed
     )
     {
-        // TODO: Only if method has [Transactional]
+        // ! test if it works.
+        var transactional = invocation.MethodInvocationTarget.GetCustomAttribute<TransactionalAttribute>();
+        if (transactional is null)
+        {
+            await proceed(invocation, proceedInfo);
+            return;
+        }
+
         using var connection = await connector.ConnectAsync();
 
-        using (var transaction = connection.BeginTransaction())
+        // Related to async versions of transaction methods.
+        // https://github.com/npgsql/npgsql/issues/836
+        using (var transaction = connection.BeginTransaction()) // TODO: Use Isolation level of attribute.
         {
             await proceed(invocation, proceedInfo);
 
+            // TODO: Also post events to broker here, use Outbox pattern or similar.
             transaction.Commit();
-
-            // TODO: Also post events to broker here.
         }
     }
 
@@ -38,21 +48,30 @@ sealed class AsyncTransactionInterceptor : AsyncInterceptorBase
         Func<IInvocation, IInvocationProceedInfo, Task<TResult>> proceed
     )
     {
-        // TODO: Only if method has [Transactional]
+        var transactional = invocation.MethodInvocationTarget.GetCustomAttribute<TransactionalAttribute>();
+        if (transactional is null)
+        {
+            return await proceed(invocation, proceedInfo);
+        }
+
         using var connection = await connector.ConnectAsync();
 
-        using (var transaction = connection.BeginTransaction())
+        using (var transaction = connection.BeginTransaction()) // TODO: Use Isolation level of attribute.
         {
             var result = await proceed(invocation, proceedInfo);
             // TODO: test it, also not complete.
             if (typeof(TResult).IsAssignableFrom(typeof(IErrorOr)))
             {
-                transaction.Rollback();
+                if (invocation.ReturnValue is IErrorOr errorOr && errorOr.IsError)
+                {
+                    transaction.Rollback();
+                }
+
                 return result;
             }
 
+            // TODO: Also post events to broker here, use Outbox pattern or similar.
             transaction.Commit();
-            // TODO: Also post events to broker here.
             return result;
         }
     }

@@ -11,10 +11,8 @@ public sealed class TransactionalAttribute : Attribute
 {
     public IsolationLevel? IsolationLevel { get; }
 
-    public TransactionalAttribute(IsolationLevel isolationLevel)
-    {
+    public TransactionalAttribute(IsolationLevel isolationLevel) =>
         IsolationLevel = isolationLevel;
-    }
 
     public TransactionalAttribute() { }
 }

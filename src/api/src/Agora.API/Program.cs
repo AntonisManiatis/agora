@@ -1,9 +1,12 @@
 using System.Text;
 
+using Agora.API.Stores.Services;
+using Agora.Catalogs;
 using Agora.Identity;
 using Agora.Identity.Infrastructure.Tokens;
 using Agora.Shared;
 using Agora.Shared.Infrastructure;
+using Agora.Shared.Infrastructure.DependencyInjection;
 using Agora.Stores;
 
 using ErrorOr;
@@ -24,9 +27,13 @@ var connectionString = configuration.GetConnectionString("PostgreSql")!;
 builder.Services.AddShared(connectionString);
 builder.Services.AddMigrations(connectionString,
     // ! there has to be a better way to do this :D
+    typeof(Agora.Catalogs.CatalogsServiceCollectionExtensions).Assembly,
     typeof(Agora.Identity.IdentityServiceCollectionExtensions).Assembly,
     typeof(Agora.Stores.StoreServiceCollectionExtensions).Assembly
 );
+
+// Catalog services.
+builder.Services.AddCatalogs();
 
 // Identity & authentication services.
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -55,6 +62,8 @@ builder.Services.AddIdentity(sp =>
 builder.Services.AddStores();
 
 // API services.
+builder.Services.AddProxiedScoped<StoreService>();
+
 builder.Services.AddControllers();
 builder.Services.AddProblemDetails(options =>
     options.CustomizeProblemDetails = ctx =>

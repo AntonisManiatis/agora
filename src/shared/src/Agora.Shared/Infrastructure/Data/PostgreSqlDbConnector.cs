@@ -24,5 +24,4 @@ sealed class PostgreSqlDbConnector : IDbConnector, IDisposable, IAsyncDisposable
     public void Dispose() => connection.Dispose();
 
     public ValueTask DisposeAsync() => connection.DisposeAsync();
-
 }

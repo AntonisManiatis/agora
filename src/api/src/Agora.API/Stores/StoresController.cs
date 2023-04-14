@@ -1,5 +1,5 @@
 using Agora.API.Stores.Models;
-using Agora.Stores.Services;
+using Agora.API.Stores.Services;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,17 +10,10 @@ namespace Agora.API.Stores;
 [Produces("application/json")]
 public class StoresController : ApiController
 {
-    private readonly IStoreService storeService;
-    private readonly Agora.Catalogs.Services.Stores.IStoreService listStoreService;
+    private readonly StoreService storeService;
 
-    public StoresController(
-        IStoreService storeService,
-        Agora.Catalogs.Services.Stores.IStoreService listStoreService
-    )
-    {
+    public StoresController(StoreService storeService) =>
         this.storeService = storeService;
-        this.listStoreService = listStoreService;
-    }
 
     /// <summary>
     /// Registers a store.
@@ -30,60 +23,40 @@ public class StoresController : ApiController
     [Authorize]
     public async Task<IActionResult> RegisterStoreAsync(RegisterStoreRequest req)
     {
-        var storeId = Guid.NewGuid(); // TODO: Figure out who makes this
         var userId = Guid.NewGuid();  // TODO: GET user by token
 
-        var command = new RegisterStoreCommand(
-            storeId,
-            userId
-        );
-
-        // ! should be in the same transaction.
-        var result = await listStoreService.ListStoreAsync(
-            new Agora.Catalogs.Services.Stores.ListStoreCommand(
-                storeId,
-                req.Name,
-                req.Preferences.Language
-            )
-        );
-
-        if (result.IsError)
-        {
-            return Problem(result.Errors);
-        }
-
-        result = await storeService.RegisterStoreAsync(command);
-
-        if (result.IsError)
-        {
-            return Problem(result.Errors);
-        }
-
-        // ! see if I can avoid the allocation.
-        // ? should I return the entire store again?
-        return CreatedAtAction("GetStore", new { storeId = storeId }, storeId);
-    }
-
-    [HttpGet]
-    public async Task<IEnumerable<Store>> GetStoresAsync() =>
-        await storeService.GetStoresAsync();
-
-    /// <summary>
-    /// Retrieves a store by id.
-    /// </summary>
-    /// <param name="storeId"></param>
-    /// <returns></returns>
-    [HttpGet]
-    [Route("{storeId}")]
-    public async Task<IActionResult> GetStoreAsync(Guid storeId)
-    {
-        var result = await storeService.GetStoreAsync(storeId);
+        var result = await storeService.RegisterAsync((userId, req));
 
         return result.Match<IActionResult>(
-            store => Ok(store),
+            // ! see if I can avoid the allocation.
+            // ? should I return the entire store again?
+            storeId => CreatedAtAction("GetStore", new { storeId = storeId }, storeId),
             errors => Problem(errors)
         );
     }
+
+    /*
+        [HttpGet]
+        public async Task<IEnumerable<Store>> GetStoresAsync() =>
+            await storeService.GetStoresAsync();
+
+        /// <summary>
+        /// Retrieves a store by id.
+        /// </summary>
+        /// <param name="storeId"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("{storeId}")]
+        public async Task<IActionResult> GetStoreAsync(Guid storeId)
+        {
+            var result = await storeService.GetStoreAsync(storeId);
+
+            return result.Match<IActionResult>(
+                store => Ok(store),
+                errors => Problem(errors)
+            );
+        }
+    */
 
     [HttpGet]
     [Route("{storeId}/categories")]

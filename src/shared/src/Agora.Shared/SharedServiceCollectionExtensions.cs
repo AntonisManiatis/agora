@@ -19,8 +19,8 @@ public static class SharedServiceCollectionExtensions
         // PostgreSQL services.
         services.AddPostgreSql(connectionString);
 
-        // Transactions
-        services.AddTransactions();
+        // Transactions interceptors
+        services.AddTransactionInterceptors();
 
         // Messaging services.
         // TODO: Use MassTransit soon-ish.

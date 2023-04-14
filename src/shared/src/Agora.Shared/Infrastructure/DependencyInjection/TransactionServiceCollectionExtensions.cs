@@ -6,7 +6,7 @@ namespace Agora.Shared.Infrastructure.DependencyInjection;
 
 public static class TransactionServiceCollectionExtensions
 {
-    public static IServiceCollection AddTransactions(this IServiceCollection services)
+    internal static IServiceCollection AddTransactionInterceptors(this IServiceCollection services)
     {
         services.AddSingleton<ProxyGenerator>();
         services.AddScoped<IInterceptor, TransactionInterceptor>();
@@ -20,26 +20,38 @@ public static class TransactionServiceCollectionExtensions
         where TImplementation : class, TInterface
     {
         services.AddScoped<TImplementation>();
-        services.AddScoped(typeof(TInterface), serviceProvider =>
+        services.AddScoped(typeof(TInterface), provider =>
         {
-            var proxyGenerator = serviceProvider.GetRequiredService<ProxyGenerator>();
-            var actual = serviceProvider.GetRequiredService<TImplementation>();
-            var interceptors = serviceProvider.GetServices<IInterceptor>().ToArray();
-            return proxyGenerator.CreateInterfaceProxyWithTarget(typeof(TInterface), actual, interceptors);
+            var proxyGenerator = provider.GetRequiredService<ProxyGenerator>();
+            var target = provider.GetRequiredService<TImplementation>();
+            var interceptors = provider.GetServices<IInterceptor>().ToArray();
+            return proxyGenerator.CreateInterfaceProxyWithTarget(typeof(TInterface), target, interceptors);
         });
 
         return services;
     }
 
+    // ? Maybe document how this works?
     public static IServiceCollection AddProxiedScoped<TService>(this IServiceCollection services)
         where TService : class
     {
-        services.AddScoped(typeof(TService), serviceProvider =>
+        services.AddScoped(typeof(TService), provider =>
         {
-            var proxyGenerator = serviceProvider.GetRequiredService<ProxyGenerator>();
-            var actual = ActivatorUtilities.CreateInstance<TService>(serviceProvider);
-            var interceptors = serviceProvider.GetServices<IInterceptor>().ToArray();
-            return proxyGenerator.CreateClassProxyWithTarget(typeof(TService), actual, interceptors);
+            var proxyGenerator = provider.GetRequiredService<ProxyGenerator>();
+            var target = ActivatorUtilities.CreateInstance<TService>(provider);
+            var interceptors = provider.GetServices<IInterceptor>().ToArray();
+
+            var ctor = typeof(TService).GetConstructors()[0];
+            var args = ctor.GetParameters()
+                .Select(p => provider.GetService(p.ParameterType))
+                .ToArray();
+
+            return proxyGenerator.CreateClassProxyWithTarget(
+                typeof(TService),
+                target,
+                args,
+                interceptors
+            );
         });
 
         return services;
