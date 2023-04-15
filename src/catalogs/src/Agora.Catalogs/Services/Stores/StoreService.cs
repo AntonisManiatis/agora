@@ -24,6 +24,8 @@ sealed class StoreService : IStoreService
 
     public async Task<ErrorOr<Unit>> ListStoreAsync(ListStoreCommand command)
     {
+        // TODO: add validator.
+
         var exists = await storeRepository.ExistsAsync(command.Name);
         if (exists)
         {

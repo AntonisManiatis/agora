@@ -24,7 +24,7 @@ public sealed class Initial : Migration
             .InSchema(Schema)
             .WithColumn("id").AsGuid().PrimaryKey()
             .WithColumn("name").AsString().Unique().NotNullable() // TODO: Add max value also not nullable required?
-            .WithColumn("lang").AsString(3).NotNullable(); // I think this is needed here, check what identifier we need. 3 letter iso? 2?
+            .WithColumn("lang").AsString(16).NotNullable();
     }
 
     public override void Down()

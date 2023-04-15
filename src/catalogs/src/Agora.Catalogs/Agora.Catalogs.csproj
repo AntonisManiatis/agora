@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <PackageReference Include="ErrorOr" />
+    <PackageReference Include="FluentValidation" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,3 +1,5 @@
+using System.Security.Claims;
+
 using Agora.API.Stores.Models;
 using Agora.API.Stores.Services;
 
@@ -23,7 +25,7 @@ public class StoresController : ApiController
     [Authorize]
     public async Task<IActionResult> RegisterStoreAsync(RegisterStoreRequest req)
     {
-        var userId = Guid.NewGuid();  // TODO: GET user by token
+        var userId = User.GetUserId();
 
         var result = await storeService.RegisterAsync((userId, req));
 
@@ -36,27 +38,27 @@ public class StoresController : ApiController
     }
 
     /*
-        [HttpGet]
-        public async Task<IEnumerable<Store>> GetStoresAsync() =>
-            await storeService.GetStoresAsync();
-
-        /// <summary>
-        /// Retrieves a store by id.
-        /// </summary>
-        /// <param name="storeId"></param>
-        /// <returns></returns>
-        [HttpGet]
-        [Route("{storeId}")]
-        public async Task<IActionResult> GetStoreAsync(Guid storeId)
-        {
-            var result = await storeService.GetStoreAsync(storeId);
-
-            return result.Match<IActionResult>(
-                store => Ok(store),
-                errors => Problem(errors)
-            );
-        }
+    [HttpGet]
+    public async Task<IEnumerable<Store>> GetStoresAsync() =>
+        await storeService.GetStoresAsync();
     */
+
+    /// <summary>
+    /// Retrieves a store by id.
+    /// </summary>
+    /// <param name="storeId"></param>
+    /// <returns></returns>
+    [HttpGet]
+    [Route("{storeId}")]
+    public async Task<IActionResult> GetStoreAsync(Guid storeId)
+    {
+        var result = await storeService.GetStoreAsync(storeId);
+
+        return result.Match<IActionResult>(
+            store => Ok(store),
+            errors => Problem(errors)
+        );
+    }
 
     [HttpGet]
     [Route("{storeId}/categories")]

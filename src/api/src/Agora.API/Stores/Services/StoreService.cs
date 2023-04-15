@@ -53,4 +53,14 @@ public class StoreService
 
         return storeId;
     }
+
+    public async Task<ErrorOr<Models.Store>> GetStoreAsync(Guid storeId)
+    {
+        await Task.CompletedTask;
+
+        return new Models.Store(
+            storeId,
+            "test"
+        );
+    }
 }

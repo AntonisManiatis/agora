@@ -26,3 +26,8 @@ public record TaxAddress
     public string State { get; init; } = string.Empty;
     public string ZipCode { get; init; } = string.Empty;
 }
+
+public record Store(
+    Guid Id,
+    string Name
+);

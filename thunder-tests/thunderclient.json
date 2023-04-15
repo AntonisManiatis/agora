@@ -1,0 +1,25 @@
+[
+  {
+    "_id": "663eadd2-9ded-4199-9663-d378a8fce6b2",
+    "colId": "5e1a39a5-6a09-4eae-839f-1b0315fe6d6d",
+    "containerId": "",
+    "name": "Create a store",
+    "url": "http://{{host}}/Stores",
+    "method": "POST",
+    "sortNum": 10000,
+    "created": "2023-04-15T12:20:55.896Z",
+    "modified": "2023-04-15T15:39:38.153Z",
+    "headers": [],
+    "params": [],
+    "body": {
+      "type": "json",
+      "raw": "{\n  \"preferences\": {\n    \"language\": \"en-US\",\n    \"country\": \"GR\",\n    \"currency\": \"EUR\"\n  },\n  \"name\": \"Coffee Hipster\"\n}",
+      "form": []
+    },
+    "auth": {
+      "type": "bearer",
+      "bearer": "{{token}}"
+    },
+    "tests": []
+  }
+]
