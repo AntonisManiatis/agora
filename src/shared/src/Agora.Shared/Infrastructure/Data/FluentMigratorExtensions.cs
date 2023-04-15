@@ -18,6 +18,15 @@ public static class FluentMigratorExtensions
         }
     }
 
+    public static void Rollback(this IServiceProvider provider)
+    {
+        using (var scope = provider.CreateAsyncScope())
+        {
+            var runner = scope.ServiceProvider.GetService<IMigrationRunner>();
+            runner?.Rollback(100); // ? couldn't find a better way
+        }
+    }
+
     public static IServiceCollection AddMigrations(this IServiceCollection services,
         string connectionString, params Assembly[] assemblies)
     {

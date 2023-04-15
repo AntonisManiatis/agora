@@ -6,18 +6,22 @@ namespace Agora.Catalogs.Infrastructure.Data.Migrations;
 [Migration(120319238912)]
 public sealed class Initial : Migration
 {
+    private new const string Schema = "catalogs";
+    private const string ProductTable = "product";
+    private const string StoreTable = "store";
+
     public override void Up()
     {
-        Create.Schema("catalogs");
+        Create.Schema(Schema);
 
         Create.Table("product")
-            .InSchema("catalogs")
+            .InSchema(Schema)
             .WithColumn("id").AsGuid().PrimaryKey()
             .WithColumn("title").AsString().NotNullable()
             .WithColumn("description").AsString().NotNullable();
 
         Create.Table("store")
-            .InSchema("catalogs")
+            .InSchema(Schema)
             .WithColumn("id").AsGuid().PrimaryKey()
             .WithColumn("name").AsString().Unique().NotNullable() // TODO: Add max value also not nullable required?
             .WithColumn("lang").AsString(3).NotNullable(); // I think this is needed here, check what identifier we need. 3 letter iso? 2?
@@ -25,9 +29,9 @@ public sealed class Initial : Migration
 
     public override void Down()
     {
-        // ? does this cascade to tables?
-        Delete.Schema("catalogs");
-        Delete.Table("product");
-        Delete.Table("store");
+        Delete.Table("product").InSchema(Schema);
+        Delete.Table("store").InSchema(Schema);
+
+        Delete.Schema(Schema);
     }
 }

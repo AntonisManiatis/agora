@@ -44,11 +44,10 @@ public sealed class Init : Migration
 
     public override void Down()
     {
-        // ? Not sure if this cascades deletes.
-        Delete.Schema("stores");
+        Delete.Table("product").InSchema("stores");
+        Delete.Table("store_category").InSchema("stores");
+        Delete.Table(TableName).InSchema("stores");
 
-        Delete.Table(TableName);
-        Delete.Table("store_category");
-        Delete.Table("product");
+        Delete.Schema("stores");
     }
 }

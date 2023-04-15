@@ -1,5 +1,6 @@
 using System.Text;
 
+using Agora.API;
 using Agora.API.Stores.Services;
 using Agora.Catalogs;
 using Agora.Identity;
@@ -28,11 +29,16 @@ var connectionString = configuration.GetConnectionString("PostgreSql")!;
 // Shared infrastructure.
 builder.Services.AddShared(connectionString);
 builder.Services.AddMigrations(connectionString,
-    // ! there has to be a better way to do this :D
+    // ? there has to be a better way to do this :D
     typeof(Agora.Catalogs.CatalogsServiceCollectionExtensions).Assembly,
     typeof(Agora.Identity.IdentityServiceCollectionExtensions).Assembly,
     typeof(Agora.Stores.StoreServiceCollectionExtensions).Assembly
 );
+
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddHostedService<TruncateDatabaseHostedService>();
+}
 
 // Messaging infrastructure
 builder.Services.AddMassTransit(options =>
@@ -43,7 +49,7 @@ builder.Services.AddMassTransit(options =>
 
     // TODO: each service registers their sagas, etc here.
 
-    // TODO: Use RabbitMQ once I set up docker stuff
+    // options.UsingRabbitMq();
     options.UsingInMemory();
 });
 
@@ -51,20 +57,27 @@ builder.Services.AddMassTransit(options =>
 builder.Services.AddCatalogs();
 
 // Identity & authentication services.
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddAuthentication().AddJwtBearer();
+}
+else
+{
+    builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        .AddJwtBearer(options =>
         {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = configuration["Jwt:Issuer"],
-            ValidAudience = configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Secret"]!))
-        };
-    });
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = configuration["Jwt:Issuer"],
+                ValidAudience = configuration["Jwt:Audience"],
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Secret"]!))
+            };
+        });
+}
 
 builder.Services.Configure<JwtOptions>(configuration.GetSection("Jwt"));
 builder.Services.AddIdentity(sp =>
@@ -122,12 +135,6 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 var app = builder.Build();
-
-if (app.Environment.IsDevelopment())
-{
-    // ! Perhaps not the best of ideas to run this on start? Should be fine for development.
-    app.Services.MigrateUp();
-}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

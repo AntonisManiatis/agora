@@ -23,8 +23,7 @@ public sealed class InitUsers : Migration
 
     public override void Down()
     {
-        // ? Does it cascade the delete operations? if yes we don't need the drop table.
+        Delete.Table(TableName).InSchema(SchemaName);
         Delete.Schema(SchemaName);
-        Delete.Table(TableName);
     }
 }
