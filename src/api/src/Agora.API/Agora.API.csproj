@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\catalogs\src\Agora.Catalogs\Agora.Catalogs.csproj" />
+    <ProjectReference Include="..\..\..\catalog\src\Agora.Catalog\Agora.Catalog.csproj" />
     <ProjectReference Include="..\..\..\identity\src\Agora.Identity\Agora.Identity.csproj" />
     <ProjectReference Include="..\..\..\stores\src\Agora.Stores\Agora.Stores.csproj" />
   </ItemGroup>

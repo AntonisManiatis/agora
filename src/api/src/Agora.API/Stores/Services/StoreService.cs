@@ -9,11 +9,11 @@ namespace Agora.API.Stores.Services;
 public class StoreService
 {
     private readonly Agora.Stores.Services.IStoreService storeService;
-    private readonly Agora.Catalogs.Services.Stores.IStoreService listStoreService;
+    private readonly Agora.Catalog.Services.Stores.IStoreService listStoreService;
 
     public StoreService(
         Agora.Stores.Services.IStoreService storeService,
-        Agora.Catalogs.Services.Stores.IStoreService listStoreService
+        Agora.Catalog.Services.Stores.IStoreService listStoreService
     )
     {
         this.storeService = storeService;
@@ -32,7 +32,7 @@ public class StoreService
         );
 
         var result = await listStoreService.ListStoreAsync(
-            new Agora.Catalogs.Services.Stores.ListStoreCommand(
+            new Agora.Catalog.Services.Stores.ListStoreCommand(
                 storeId,
                 req.Name,
                 req.Preferences.Language

@@ -1,4 +1,4 @@
-// TODO: Move to catalogs
+// TODO: Move to catalog
 using Agora.Stores.Core.Stores;
 
 using ErrorOr;

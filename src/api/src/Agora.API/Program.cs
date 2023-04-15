@@ -2,7 +2,7 @@ using System.Text;
 
 using Agora.API;
 using Agora.API.Stores.Services;
-using Agora.Catalogs;
+using Agora.Catalog;
 using Agora.Identity;
 using Agora.Identity.Infrastructure.Tokens;
 using Agora.Shared;
@@ -30,7 +30,7 @@ var connectionString = configuration.GetConnectionString("PostgreSql")!;
 builder.Services.AddShared(connectionString);
 builder.Services.AddMigrations(connectionString,
     // ? there has to be a better way to do this :D
-    typeof(Agora.Catalogs.CatalogsServiceCollectionExtensions).Assembly,
+    typeof(Agora.Catalog.CatalogServiceCollectionExtensions).Assembly,
     typeof(Agora.Identity.IdentityServiceCollectionExtensions).Assembly,
     typeof(Agora.Stores.StoreServiceCollectionExtensions).Assembly
 );
@@ -54,7 +54,7 @@ builder.Services.AddMassTransit(options =>
 });
 
 // Catalog services.
-builder.Services.AddCatalogs();
+builder.Services.AddCatalog();
 
 // Identity & authentication services.
 if (builder.Environment.IsDevelopment())
