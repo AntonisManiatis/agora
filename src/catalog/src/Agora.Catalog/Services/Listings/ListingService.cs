@@ -4,7 +4,7 @@ using Agora.Shared;
 
 using ErrorOr;
 
-namespace Agora.Catalog.Services;
+namespace Agora.Catalog.Services.Listings;
 
 public record ListProductCommand(
     Guid Id,
@@ -13,16 +13,16 @@ public record ListProductCommand(
     string Description
 );
 
-public interface IProductService
+public interface IListingService
 {
     Task<ErrorOr<Unit>> ListProductAsync(ListProductCommand listing);
 }
 
-sealed class ProductService : IProductService
+sealed class ListingService : IListingService
 {
     private readonly IProductRepository productRepository;
 
-    public ProductService(IProductRepository productRepository)
+    public ListingService(IProductRepository productRepository)
     {
         this.productRepository = productRepository;
     }

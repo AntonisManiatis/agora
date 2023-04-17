@@ -1,14 +1,14 @@
-using Agora.Catalog.Services;
+using Agora.Catalog.Services.Listings;
 using Agora.Shared;
 
 namespace Agora.Catalog.IntegrationTests;
 
 [Collection("Catalog")]
-public class ProductServiceTest : IClassFixture<ServiceFixture>
+public class ListingServiceTest : IClassFixture<ServiceFixture>
 {
     private readonly ServiceFixture fixture;
 
-    public ProductServiceTest(ServiceFixture fixture) => this.fixture = fixture;
+    public ListingServiceTest(ServiceFixture fixture) => this.fixture = fixture;
 
     [Fact]
     public async Task Test1Async() // TODO: rename

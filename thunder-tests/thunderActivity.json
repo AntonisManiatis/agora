@@ -1,1 +1,25 @@
-[]
+[
+  {
+    "_id": "e5591dd4-13c9-46b2-8dc5-e6c85f0f7d19",
+    "colId": "history",
+    "containerId": "",
+    "name": "http://{{host}}/listings",
+    "url": "http://{{host}}/listings",
+    "method": "POST",
+    "sortNum": 0,
+    "created": "2023-04-16T07:02:42.678Z",
+    "modified": "2023-04-16T07:02:42.678Z",
+    "headers": [],
+    "params": [],
+    "body": {
+      "type": "json",
+      "raw": "{\n  \"title\": \"My product\",\n  \"description\": \"A cool product\"\n}",
+      "form": []
+    },
+    "auth": {
+      "type": "bearer",
+      "bearer": "{{token}}"
+    },
+    "tests": []
+  }
+]

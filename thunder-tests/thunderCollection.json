@@ -3,7 +3,21 @@
     "_id": "5e1a39a5-6a09-4eae-839f-1b0315fe6d6d",
     "colName": "Onboarding",
     "created": "2023-04-15T12:20:55.892Z",
-    "sortNum": 10000,
+    "sortNum": 25000,
+    "folders": []
+  },
+  {
+    "_id": "9f433c76-07e3-43cd-b3fb-08da8d3f4ca3",
+    "colName": "Listings",
+    "created": "2023-04-16T07:06:42.294Z",
+    "sortNum": 30000,
+    "folders": []
+  },
+  {
+    "_id": "63b46333-5a98-4bc9-932b-5a91e9a78cb3",
+    "colName": "Categories",
+    "created": "2023-04-16T17:09:18.038Z",
+    "sortNum": 20000,
     "folders": []
   }
 ]

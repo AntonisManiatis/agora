@@ -4,16 +4,85 @@
     "colId": "5e1a39a5-6a09-4eae-839f-1b0315fe6d6d",
     "containerId": "",
     "name": "Create a store",
-    "url": "http://{{host}}/Stores",
+    "url": "http://{{host}}/stores",
     "method": "POST",
     "sortNum": 10000,
     "created": "2023-04-15T12:20:55.896Z",
-    "modified": "2023-04-15T15:39:38.153Z",
+    "modified": "2023-04-16T06:57:39.439Z",
     "headers": [],
     "params": [],
     "body": {
       "type": "json",
       "raw": "{\n  \"preferences\": {\n    \"language\": \"en-US\",\n    \"country\": \"GR\",\n    \"currency\": \"EUR\"\n  },\n  \"name\": \"Coffee Hipster\"\n}",
+      "form": []
+    },
+    "auth": {
+      "type": "bearer",
+      "bearer": "{{token}}"
+    },
+    "tests": []
+  },
+  {
+    "_id": "80f843c5-0b35-42da-b724-1a783ddee212",
+    "colId": "9f433c76-07e3-43cd-b3fb-08da8d3f4ca3",
+    "containerId": "",
+    "name": "Create a listing",
+    "url": "http://{{host}}/listings",
+    "method": "POST",
+    "sortNum": 10000,
+    "created": "2023-04-16T07:07:28.074Z",
+    "modified": "2023-04-16T07:07:28.074Z",
+    "headers": [],
+    "params": [],
+    "body": {
+      "type": "json",
+      "raw": "{\n  \"title\": \"My product\",\n  \"description\": \"A cool product\"\n}",
+      "form": []
+    },
+    "auth": {
+      "type": "bearer",
+      "bearer": "{{token}}"
+    },
+    "tests": []
+  },
+  {
+    "_id": "7a013ec3-9218-473f-9138-3c5a7beca54e",
+    "colId": "63b46333-5a98-4bc9-932b-5a91e9a78cb3",
+    "containerId": "",
+    "name": "Create a parent category",
+    "url": "http://{{host}}/categories",
+    "method": "POST",
+    "sortNum": 20000,
+    "created": "2023-04-16T17:09:44.114Z",
+    "modified": "2023-04-17T07:12:40.180Z",
+    "headers": [],
+    "params": [],
+    "body": {
+      "type": "json",
+      "raw": "{\n  \"name\": \"Technology\",\n  \"description\": \"Smartphones to laptops & consoles, we got it all.\"\n}",
+      "form": []
+    },
+    "auth": {
+      "type": "bearer",
+      "bearer": "{{token}}"
+    },
+    "tests": []
+  },
+  {
+    "_id": "3293dc34-22ca-448c-8bfd-f963803e9ffb",
+    "colId": "63b46333-5a98-4bc9-932b-5a91e9a78cb3",
+    "containerId": "",
+    "name": "Create a nested category",
+    "url": "http://{{host}}/categories",
+    "method": "POST",
+    "sortNum": 30000,
+    "created": "2023-04-16T19:54:41.624Z",
+    "modified": "2023-04-16T19:59:39.222Z",
+    "headers": [],
+    "params": [],
+    "body": {
+      "type": "json",
+      "raw": "{\n  \"name\": \"Consoles\",\n  \"parentId\": \"1\",\n  \"attributes\": [\n    {\n      \"name\": \"Manufacturer\",\n      \"options\": [\n        \"Sony\",\n        \"Microsoft\",\n        \"Nintendo\"\n      ]\n    }\n  ]\n}",
       "form": []
     },
     "auth": {

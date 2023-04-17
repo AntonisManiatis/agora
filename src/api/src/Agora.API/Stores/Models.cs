@@ -1,4 +1,4 @@
-namespace Agora.API.Stores.Models;
+namespace Agora.API.Stores;
 
 public record StorePreferences(
     string? Language,   // ? Optional too? Depends on settings?

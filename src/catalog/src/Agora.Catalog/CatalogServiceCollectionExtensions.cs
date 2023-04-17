@@ -1,6 +1,8 @@
 using Agora.Catalog.Infrastructure.Data;
-using Agora.Catalog.Services;
+using Agora.Catalog.Services.Categories;
+using Agora.Catalog.Services.Listings;
 using Agora.Catalog.Services.Stores;
+using Agora.Shared.Infrastructure.DependencyInjection;
 
 using Microsoft.Extensions.DependencyInjection;
 
@@ -13,7 +15,8 @@ public static class CatalogServiceCollectionExtensions
         // Infrastructure
         services.AddRepositories();
 
-        services.AddScoped<IProductService, ProductService>();
+        services.AddProxiedScoped<ICategoryService, CategoryService>();
+        services.AddScoped<IListingService, ListingService>();
         services.AddScoped<IStoreService, StoreService>();
         return services;
     }

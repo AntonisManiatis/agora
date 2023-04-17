@@ -4,6 +4,17 @@ static class Sql
 {
     internal const string Schema = "catalog";
 
+    internal static class Category
+    {
+        internal const string Table = "category";
+
+        internal static string Id = nameof(Category.Id).ToSnakeCase();
+        internal static string Name = nameof(Category.Name).ToSnakeCase();
+        internal static string Description = nameof(Category.Description).ToSnakeCase();
+        internal static string ImageUrl = nameof(Category.ImageUrl).ToSnakeCase();
+        internal static string ParentId = nameof(Category.ParentId).ToSnakeCase();
+    }
+
     internal static class Product
     {
         internal const string Table = "product";

@@ -1,4 +1,5 @@
-using Agora.Catalog.Services;
+using Agora.Catalog.Services.Categories;
+using Agora.Catalog.Services.Listings;
 using Agora.Catalog.Services.Stores;
 using Agora.Shared;
 using Agora.Shared.Infrastructure;
@@ -24,7 +25,9 @@ public class ServiceFixture : IDisposable
         provider.MigrateUp();
     }
 
-    internal Scoped<IProductService> ProductService => new(provider!.CreateScope());
+    internal Scoped<ICategoryService> CategoryService => new(provider!.CreateScope());
+
+    internal Scoped<IListingService> ProductService => new(provider!.CreateScope());
 
     internal Scoped<IStoreService> StoreService => new(provider!.CreateScope());
 

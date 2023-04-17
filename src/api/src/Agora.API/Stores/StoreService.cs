@@ -1,10 +1,9 @@
-using Agora.API.Stores.Models;
 using Agora.Shared;
 using Agora.Stores.Services;
 
 using ErrorOr;
 
-namespace Agora.API.Stores.Services;
+namespace Agora.API.Stores;
 
 public class StoreService
 {
@@ -54,11 +53,11 @@ public class StoreService
         return storeId;
     }
 
-    public async Task<ErrorOr<Models.Store>> GetStoreAsync(Guid storeId)
+    public async Task<ErrorOr<Store>> GetStoreAsync(Guid storeId)
     {
         await Task.CompletedTask;
 
-        return new Models.Store(
+        return new Store(
             storeId,
             "test"
         );

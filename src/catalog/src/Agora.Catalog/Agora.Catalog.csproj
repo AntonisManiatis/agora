@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <PackageReference Include="ErrorOr" />
     <PackageReference Include="FluentValidation" />
+    <PackageReference Include="Mapster" />
   </ItemGroup>
 
   <ItemGroup>

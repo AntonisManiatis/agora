@@ -1,7 +1,9 @@
 using System.Text;
 
 using Agora.API;
-using Agora.API.Stores.Services;
+using Agora.API.Catalog.Categories;
+using Agora.API.Catalog.Listings;
+using Agora.API.Stores;
 using Agora.Catalog;
 using Agora.Identity;
 using Agora.Identity.Infrastructure.Tokens;
@@ -91,6 +93,7 @@ builder.Services.AddStores();
 
 // API services.
 builder.Services.AddProxiedScoped<StoreService>();
+builder.Services.AddProxiedScoped<ListingService>();
 
 builder.Services.AddControllers();
 builder.Services.AddProblemDetails(options =>
@@ -149,5 +152,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapCategories();
+app.MapListings();
 
 app.Run();

@@ -18,4 +18,8 @@
     <ProjectReference Include="..\..\..\stores\src\Agora.Stores\Agora.Stores.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
+  </ItemGroup>
+
 </Project>
