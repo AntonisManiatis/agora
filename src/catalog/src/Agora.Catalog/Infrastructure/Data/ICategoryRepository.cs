@@ -6,6 +6,8 @@ interface ICategoryRepository
 {
     Task<bool> ExistsAsync(int id);
 
+    Task<IEnumerable<Category>> GetAllAsync();
+
     Task<Category?> GetAsync(int id);
 
     Task<int> NextIdentity();

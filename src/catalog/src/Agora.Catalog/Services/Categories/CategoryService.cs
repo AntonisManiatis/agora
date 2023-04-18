@@ -12,29 +12,33 @@ namespace Agora.Catalog.Services.Categories;
 public record Category(
     int Id,
     string Name,
-    string? Description,
-    int? ParentId
-);
-
-public record Categories(
-// TODO: All categories & nested, etc.
+    string? Description = null,
+    string? ImageUrl = null,
+    int? ParentId = null,
+    IList<Category>? Children = null
 );
 
 public record CreateCategoryCommand(
     string Name,
-    string? Description,
-    int? ParentId // TODO: attributes & options too?
+    string? Description = null,
+    string? ImageUrl = null, // ? Or ID?
+    int? ParentId = null,
+    IList<ProductAttribute>? Attributes = null
+);
+
+public record ProductAttribute(
+    string Name,
+    bool PickOne,
+    List<string> Options
 );
 
 public interface ICategoryService
 {
     Task<ErrorOr<int>> CreateAsync(CreateCategoryCommand createCategory);
 
-    // TODO: Upload image.
-
     Task<ErrorOr<Unit>> DeleteAsync(int id);
 
-    Task<Categories> GetAllAsync();
+    Task<IEnumerable<Category>> GetAllAsync();
 
     Task<ErrorOr<Category>> GetAsync(int id);
 }
@@ -46,6 +50,9 @@ public static class Errors
 
     public static readonly Error CategoryNotFound =
         Error.NotFound(code: "Caregory.NotFound", description: "Category doesn't exist.");
+
+    public static readonly Error AlreadyExists =
+        Error.NotFound(code: "Caregory.AlreadyExists", description: "Category already exists.");
 }
 
 // ! sealed might prevent the proxy? test it.
@@ -101,9 +108,10 @@ sealed class CategoryService : ICategoryService
         return new Unit();
     }
 
-    public Task<Categories> GetAllAsync()
+    public async Task<IEnumerable<Category>> GetAllAsync()
     {
-        throw new NotImplementedException();
+        var categories = await categoryRepository.GetAllAsync();
+        return categories.Adapt<IEnumerable<Category>>();
     }
 
     public async Task<ErrorOr<Category>> GetAsync(int id)

@@ -14,6 +14,31 @@
       "problemMatcher": "$msCompile"
     },
     {
+      "label": "build using postgresql testcontainer",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/src/api/src/Agora.API/Agora.API.csproj",
+        "/property:GenerateFullPaths=true",
+        "/property:useTestcontainer=true",
+        "/consoleloggerparameters:NoSummary"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "run using postgresql testcontainer",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "run",
+        "--no-build",
+        "--project",
+        "${workspaceFolder}/src/api/src/Agora.API/Agora.API.csproj"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
       "label": "publish",
       "command": "dotnet",
       "type": "process",

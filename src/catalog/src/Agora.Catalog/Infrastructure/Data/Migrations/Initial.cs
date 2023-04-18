@@ -41,6 +41,8 @@ public sealed class Initial : Migration
 
     public override void Down()
     {
+        Delete.Sequence("category_id_seq");
+
         Delete.Table(CategoryTable).InSchema(Schema);
         Delete.Table(ProductTable).InSchema(Schema);
         Delete.Table(StoreTable).InSchema(Schema);

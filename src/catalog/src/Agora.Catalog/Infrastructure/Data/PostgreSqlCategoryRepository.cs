@@ -16,18 +16,74 @@ sealed class PostgreSqlCategoryRepository : ICategoryRepository
         var connection = await connector.ConnectAsync();
 
         return await connection.ExecuteScalarAsync<bool>(
-            @$"SELECT COUNT(1) FROM {Sql.Schema}.{Sql.Category.Table} WHERE {Sql.Category.Id}=id", id
+            @$"SELECT COUNT(1) FROM {Sql.Schema}.{Sql.Category.Table} WHERE {Sql.Category.Id}=@Id", new { Id = id }
         );
+    }
+
+    public async Task<IEnumerable<Category>> GetAllAsync()
+    {
+        var connection = await connector.ConnectAsync();
+
+        var categories = await connection.QueryAsync<Category>(
+            @$"SELECT * FROM {Sql.Schema}.{Sql.Category.Table}"
+        );
+
+        var indexed = categories.ToDictionary(c => c.Id);
+        foreach (var category in categories)
+        {
+            if (category.ParentId is int parentId)
+            {
+                var cat = indexed[parentId];
+                if (cat is null)
+                {
+                    continue;
+                }
+
+                var children = cat?.Children ?? new List<Category>();
+
+                children.Add(category);
+
+                if (cat!.Children is null)
+                {
+                    cat!.Children = children;
+                }
+            }
+        }
+
+        return categories.Where(c => c.ParentId is null).ToList();
     }
 
     public async Task<Category?> GetAsync(int id)
     {
         var connection = await connector.ConnectAsync();
 
-        return await connection.QueryFirstOrDefaultAsync<Category?>(
-            @$"SELECT * FROM {Sql.Schema}.{Sql.Category.Table} WHERE {Sql.Category.Id}=id",
-            id
+        var categories = await connection.QueryAsync<Category>(
+            @$"SELECT * FROM {Sql.Schema}.{Sql.Category.Table}"
         );
+
+        var indexed = categories.ToDictionary(c => c.Id);
+        foreach (var category in categories)
+        {
+            if (category.ParentId is int parentId)
+            {
+                var cat = indexed[parentId];
+                if (cat is null)
+                {
+                    continue;
+                }
+
+                var children = cat?.Children ?? new List<Category>();
+
+                children.Add(category);
+
+                if (cat!.Children is null)
+                {
+                    cat!.Children = children;
+                }
+            }
+        }
+
+        return indexed[id];
     }
 
     public async Task<int> NextIdentity()

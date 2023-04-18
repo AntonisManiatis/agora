@@ -1,6 +1,5 @@
 using System.Text;
 
-using Agora.API;
 using Agora.API.Catalog.Categories;
 using Agora.API.Catalog.Listings;
 using Agora.API.Stores;
@@ -21,13 +20,26 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
+#if USE_TESTCONTAINER_FOR_POSTGRESQL
+using Testcontainers.PostgreSql;
+using Agora.Shared.Infrastructure.Data;
+using Dapper;
+#endif
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
 var configuration = builder.Configuration;
-
 var connectionString = configuration.GetConnectionString("PostgreSql")!;
+
+#if USE_TESTCONTAINER_FOR_POSTGRESQL
+var container = new PostgreSqlBuilder().Build();
+await container.StartAsync();
+
+connectionString = container.GetConnectionString();
+#endif
+
 // Shared infrastructure.
 builder.Services.AddShared(connectionString);
 builder.Services.AddMigrations(connectionString,
@@ -36,11 +48,6 @@ builder.Services.AddMigrations(connectionString,
     typeof(Agora.Identity.IdentityServiceCollectionExtensions).Assembly,
     typeof(Agora.Stores.StoreServiceCollectionExtensions).Assembly
 );
-
-if (builder.Environment.IsDevelopment())
-{
-    builder.Services.AddHostedService<TruncateDatabaseHostedService>();
-}
 
 // Messaging infrastructure
 builder.Services.AddMassTransit(options =>
@@ -139,6 +146,21 @@ builder.Services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 
+#if USE_TESTCONTAINER_FOR_POSTGRESQL
+using (var scope = app.Services.CreateScope())
+{
+    var connector = scope.ServiceProvider.GetRequiredService<IDbConnector>();
+    using var connection = await connector.ConnectAsync();
+
+    await connection.ExecuteAsync(@"
+        CREATE DATABASE agora;
+        CREATE EXTENSION IF NOT EXISTS ""uuid-ossp"";
+    ");
+}
+
+app.Services.MigrateUp();
+#endif
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -156,4 +178,8 @@ app.MapControllers();
 app.MapCategories();
 app.MapListings();
 
-app.Run();
+await app.RunAsync();
+
+#if USE_TESTCONTAINER_FOR_POSTGRESQL
+await container.StopAsync();
+#endif

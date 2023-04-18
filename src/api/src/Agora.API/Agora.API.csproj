@@ -4,12 +4,17 @@
     <UserSecretsId>33cbc279-17e1-4c6a-802a-a437d5ed31cf</UserSecretsId>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(useTestcontainer)'=='true'">
+    <DefineConstants>$(DefineConstants);USE_TESTCONTAINER_FOR_POSTGRESQL</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="MassTransit.RabbitMQ" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
     <PackageReference Include="Microsoft.NET.Build.Containers" />
     <PackageReference Include="Swashbuckle.AspNetCore" />
+    <PackageReference Include="Testcontainers.PostgreSql" Condition="'$(useTestcontainer)'=='true'" />
   </ItemGroup>
 
   <ItemGroup>

@@ -8,6 +8,20 @@ using static Results;
 
 static class Categories
 {
+    internal static void MapCategories(this IEndpointRouteBuilder routes)
+    {
+        var group = routes.MapGroup("/categories");
+        group.MapPost("/", Categories.CreateAsync).RequireAuthorization(); // TODO: Using special policy (eg: Agora admin).
+        // TODO: or patch?
+        group.MapPut("/{id}", Categories.UpdateAsync).RequireAuthorization(); // TODO: Using special policy (eg: Agora admin).
+        group.MapDelete("/{id}", Categories.DeleteAsync).RequireAuthorization(); // TODO: Using special policy (eg: Agora admin).
+
+        group.MapGet("/", Categories.GetAllAsync);
+        group.MapGet("/{id}", Categories.GetAsync).WithName("GetCategory");
+        group.MapGet("/{id}/attributes", Categories.GetAttributesAsync);
+        // TODO: put or patch on a category's attributes?
+    }
+
     internal static async Task<IResult> CreateAsync(
         CreateCategory createCategory,
         ICategoryService categoryService
@@ -18,7 +32,7 @@ static class Categories
         );
 
         return result.MatchOk(
-            id => Ok(id)
+            id => CreatedAtRoute("GetCategory", new { Id = id }, id)
         );
     }
 
@@ -29,9 +43,6 @@ static class Categories
             _ => Ok()
         );
     }
-
-    internal static Task<IResult> UploadImageAsync(int id, IFormFile file, ICategoryService categoryService) =>
-        throw new NotImplementedException(); // TODO: Impl
 
     internal static Task<IResult> UpdateAsync(int id, ICategoryService categoryService) =>
         throw new NotImplementedException(); // TODO: Impl

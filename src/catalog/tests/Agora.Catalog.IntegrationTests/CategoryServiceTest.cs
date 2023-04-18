@@ -10,9 +10,21 @@ public class CategoryServiceTest // ! for some reason if I run all, it fails som
     public CategoryServiceTest(ServiceFixture fixture) => this.fixture = fixture;
 
     [Fact]
-    public Task A_category_requires_a_unique_name()
+    public async Task A_category_requires_a_unique_name()
     {
-        return Task.CompletedTask;
+        // Arrange
+        using var scope = fixture.CategoryService;
+        var categoryService = scope.Service;
+
+        // Act
+        var result = await categoryService.CreateAsync(
+            new Services.Categories.CreateCategoryCommand(
+                "Phones"
+            )
+        );
+
+        // Assert
+        Assert.Contains(Errors.AlreadyExists, result.Errors);
     }
 
     [Fact]
@@ -25,9 +37,7 @@ public class CategoryServiceTest // ! for some reason if I run all, it fails som
         // Act
         var result = await categoryService.CreateAsync(
             new Services.Categories.CreateCategoryCommand(
-                "Phones",
-                null,
-                null
+                "Phones"
             )
         );
 
@@ -47,7 +57,7 @@ public class CategoryServiceTest // ! for some reason if I run all, it fails som
             new Services.Categories.CreateCategoryCommand(
                 "Laptops",
                 "A lot of laptops.",
-                999 // Non existant parent category.
+                ParentId: 999 // Non existant parent category.
             )
         );
 
@@ -79,8 +89,7 @@ public class CategoryServiceTest // ! for some reason if I run all, it fails som
         var r = await categoryService.CreateAsync(
             new Services.Categories.CreateCategoryCommand(
                 "Computers",
-                "A lot of computers.",
-                null
+                "A lot of computers."
             )
         );
 
@@ -93,6 +102,6 @@ public class CategoryServiceTest // ! for some reason if I run all, it fails som
         var result = await categoryService.GetAsync(existingCategoryId);
 
         // Assert
-        Assert.Equal(new Category(existingCategoryId, "Computers", "A lot of computers.", null), result.Value);
+        Assert.Equal(new Category(existingCategoryId, "Computers", "A lot of computers."), result.Value);
     }
 }
