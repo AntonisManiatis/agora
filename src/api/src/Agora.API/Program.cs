@@ -7,7 +7,6 @@ using Agora.Catalog;
 using Agora.Identity;
 using Agora.Identity.Infrastructure.Tokens;
 using Agora.Shared;
-using Agora.Shared.Infrastructure;
 using Agora.Shared.Infrastructure.DependencyInjection;
 using Agora.Stores;
 
@@ -22,6 +21,7 @@ using Microsoft.OpenApi.Models;
 
 #if USE_TESTCONTAINER_FOR_POSTGRESQL
 using Testcontainers.PostgreSql;
+using Agora.Shared.Infrastructure;
 using Agora.Shared.Infrastructure.Data;
 using Dapper;
 #endif
@@ -35,19 +35,21 @@ var connectionString = configuration.GetConnectionString("PostgreSql")!;
 
 #if USE_TESTCONTAINER_FOR_POSTGRESQL
 var container = new PostgreSqlBuilder().Build();
+
 await container.StartAsync();
 
 connectionString = container.GetConnectionString();
-#endif
 
-// Shared infrastructure.
-builder.Services.AddShared(connectionString);
 builder.Services.AddMigrations(connectionString,
     // ? there has to be a better way to do this :D
     typeof(Agora.Catalog.CatalogServiceCollectionExtensions).Assembly,
     typeof(Agora.Identity.IdentityServiceCollectionExtensions).Assembly,
     typeof(Agora.Stores.StoreServiceCollectionExtensions).Assembly
 );
+#endif
+
+// Shared infrastructure.
+builder.Services.AddShared(connectionString);
 
 // Messaging infrastructure
 builder.Services.AddMassTransit(options =>
