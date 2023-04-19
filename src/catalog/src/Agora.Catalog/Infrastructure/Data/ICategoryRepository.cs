@@ -1,4 +1,7 @@
 using Agora.Catalog.Infrastructure.Data.Entities;
+using Agora.Shared;
+
+using ErrorOr;
 
 namespace Agora.Catalog.Infrastructure.Data;
 
@@ -12,7 +15,7 @@ interface ICategoryRepository
 
     Task<int> NextIdentity();
 
-    Task SaveAsync(Category category);
+    Task<ErrorOr<Unit>> SaveAsync(Category category);
 
     Task DeleteAsync(Category category);
 }

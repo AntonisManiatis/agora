@@ -17,15 +17,10 @@ sealed class PostgreSqlProductRepository : IProductRepository
         var connection = await connector.ConnectAsync();
 
         await connection.ExecuteAsync(
-            $@"INSERT INTO {Sql.Schema}.{Sql.Product.Table}
-            ({Sql.Product.Id}, {Sql.Product.Title}, {Sql.Product.Description})
-            VALUES (@Id, @Title, @Description)",
-            new
-            {
-                Id = product.Id,
-                Title = product.Title,
-                Description = product.Description
-            }
+            $@"INSERT INTO {Sql.Schema}.{Product.Schema.Table}
+            ({Product.Schema.Id}, {Product.Schema.Title}, {Product.Schema.Description})
+            VALUES (@{nameof(Product.Id)}, @{nameof(Product.Title)}, @{nameof(Product.Description)})",
+            product
         );
     }
 }

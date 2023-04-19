@@ -32,11 +32,12 @@ sealed class ListingService : IListingService
         // TODO: Validate.
 
         // ? Product is not published/active yet?
-        var product = new Product(
-            listing.Id,
-            listing.Title,
-            listing.Description
-        );
+        var product = new Product
+        {
+            Id = listing.Id,
+            Title = listing.Title,
+            Description = listing.Description
+        };
 
         await productRepository.SaveAsync(product);
 

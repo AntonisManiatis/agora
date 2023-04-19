@@ -2,7 +2,7 @@ using System.Security.Claims;
 
 namespace Agora.API;
 
-internal static class ClaimsPrincipalExtension
+static class ClaimsPrincipalExtensions
 {
     internal static Guid GetUserId(this ClaimsPrincipal principal)
     {
@@ -14,9 +14,7 @@ internal static class ClaimsPrincipalExtension
         {
             return uid;
         }
-        else
-        {
-            return Guid.Empty;
-        }
+
+        return Guid.Empty;
     }
 }

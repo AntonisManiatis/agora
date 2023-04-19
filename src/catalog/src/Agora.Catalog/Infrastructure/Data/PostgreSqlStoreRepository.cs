@@ -16,7 +16,8 @@ sealed class PostgreSqlStoreRepository : IStoreRepository
         var connection = await connector.ConnectAsync();
 
         var exists = await connection.ExecuteScalarAsync<bool>(
-            $"SELECT COUNT(1) FROM {Sql.Schema}.{Sql.Store.Table} WHERE {Sql.Store.Name}=@Name",
+            $@"SELECT COUNT(1) FROM {Sql.Schema}.{Store.Schema.Table}
+            WHERE {Store.Schema.Name}=@{nameof(Store.Name)}",
             new { Name = storeName }
         );
 
@@ -28,8 +29,8 @@ sealed class PostgreSqlStoreRepository : IStoreRepository
         var connection = await connector.ConnectAsync();
 
         _ = await connection.ExecuteAsync(
-            $@"INSERT INTO {Sql.Schema}.{Sql.Store.Table}
-            ({Sql.Store.Id}, {Sql.Store.Name}, {Sql.Store.Lang})
+            $@"INSERT INTO {Sql.Schema}.{Store.Schema.Table}
+            ({Store.Schema.Id}, {Store.Schema.Name}, {Store.Schema.Lang})
             VALUES (@{nameof(Store.Id)}, @{nameof(Store.Name)}, @{nameof(Store.Lang)})",
             store
         );

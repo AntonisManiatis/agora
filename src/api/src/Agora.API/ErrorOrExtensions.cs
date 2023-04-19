@@ -2,15 +2,23 @@ using ErrorOr;
 
 namespace Agora.API;
 
+using static Results;
+
 static class ErrorOrExtensions
 {
-    // TODO: Test this
     internal static IResult ToProblem(this List<Error> errors)
     {
-        // ? Empty??
-        if (errors is null)
+        if (errors is null or [])
         {
-            return Results.Empty;
+            return Problem();
+        }
+
+        if (errors.All(err => err.Type == ErrorType.Validation))
+        {
+            return ValidationProblem(errors.ToDictionary(
+                err => err.Code,
+                err => new[] { err.Description }
+            ));
         }
 
         var err = errors[0];
@@ -23,7 +31,7 @@ static class ErrorOrExtensions
             _ => StatusCodes.Status500InternalServerError
         };
 
-        return Results.Problem(statusCode: statusCode, title: err.Description);
+        return Problem(statusCode: statusCode, title: err.Description);
     }
 
     // ? Name?

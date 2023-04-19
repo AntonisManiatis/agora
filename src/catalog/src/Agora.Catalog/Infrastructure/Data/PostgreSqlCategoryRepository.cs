@@ -1,7 +1,12 @@
 using Agora.Catalog.Infrastructure.Data.Entities;
+using Agora.Shared;
 using Agora.Shared.Infrastructure.Data;
 
 using Dapper;
+
+using ErrorOr;
+
+using Npgsql;
 
 namespace Agora.Catalog.Infrastructure.Data;
 
@@ -16,7 +21,9 @@ sealed class PostgreSqlCategoryRepository : ICategoryRepository
         var connection = await connector.ConnectAsync();
 
         return await connection.ExecuteScalarAsync<bool>(
-            @$"SELECT COUNT(1) FROM {Sql.Schema}.{Sql.Category.Table} WHERE {Sql.Category.Id}=@Id", new { Id = id }
+            @$"SELECT COUNT(1) FROM {Sql.Schema}.{Category.Schema.Table}
+            WHERE {Category.Schema.Id}=@{nameof(Category.Id)}",
+            new { Id = id }
         );
     }
 
@@ -25,7 +32,7 @@ sealed class PostgreSqlCategoryRepository : ICategoryRepository
         var connection = await connector.ConnectAsync();
 
         var categories = await connection.QueryAsync<Category>(
-            @$"SELECT * FROM {Sql.Schema}.{Sql.Category.Table}"
+            @$"SELECT * FROM {Sql.Schema}.{Category.Schema.Table}"
         );
 
         var indexed = categories.ToDictionary(c => c.Id);
@@ -58,7 +65,7 @@ sealed class PostgreSqlCategoryRepository : ICategoryRepository
         var connection = await connector.ConnectAsync();
 
         var categories = await connection.QueryAsync<Category>(
-            @$"SELECT * FROM {Sql.Schema}.{Sql.Category.Table}"
+            @$"SELECT * FROM {Sql.Schema}.{Category.Schema.Table}"
         );
 
         var indexed = categories.ToDictionary(c => c.Id);
@@ -83,35 +90,53 @@ sealed class PostgreSqlCategoryRepository : ICategoryRepository
             }
         }
 
-        return indexed[id];
+        return indexed.GetValueOrDefault(id);
     }
 
     public async Task<int> NextIdentity()
     {
         var connection = await connector.ConnectAsync();
 
-        return await connection.ExecuteScalarAsync<int>($"SELECT nextval('{Sql.Schema}.{Sql.Category.Table}_{Sql.Category.Id}_seq')");
+        return await connection.ExecuteScalarAsync<int>(
+            $"SELECT nextval('{Sql.Schema}.{Category.Schema.Table}_{Category.Schema.Id}_seq')"
+        );
     }
 
-    public async Task SaveAsync(Category category)
+    public async Task<ErrorOr<Unit>> SaveAsync(Category category)
     {
         var connection = await connector.ConnectAsync();
 
-        _ = await connection.ExecuteAsync(
-            $@"INSERT INTO {Sql.Schema}.{Sql.Category.Table}
-            ({Sql.Category.Id}, {Sql.Category.Name}, {Sql.Category.Description}, {Sql.Category.ParentId})
-            VALUES (@Id, @Name, @Description, @ParentId)
-            ",
-            new // ? Can't I just use the category instead?
+        try
+        {
+            _ = await connection.ExecuteAsync(
+                $@"INSERT INTO {Sql.Schema}.{Category.Schema.Table}
+                ({Category.Schema.Id}, {Category.Schema.Name}, {Category.Schema.Description}, {Category.Schema.ParentId})
+                VALUES (@{nameof(Category.Id)}, @{nameof(Category.Name)}, @{nameof(Category.Description)}, @{nameof(Category.ParentId)})",
+                category
+            );
+        }
+        catch (PostgresException pe)
+        {
+            return pe.SqlState switch
             {
-                Id = category.Id,
-                Name = category.Name,
-                Description = category.Description,
-                ParentId = category.ParentId
-            }
-        );
+                // * We can safely assume it's the category name.
+                // ? Maybe move this error to another location because currently it's duplicated.
+                PostgresErrorCodes.UniqueViolation => Error.Conflict(code: "Caregory.AlreadyExists", description: "Category already exists."),
+                _ => Error.Failure()
+            };
+        }
 
-        // TODO: Insert attributes/options too.
+        if (category.Attributes is not []) // I assume this is a "and null" pattern
+        {
+            // TODO: Insert attributes/options too.
+            // _ = await connection.ExecuteAsync(
+            //     $@"INSERT INTO {Sql.Schema}.{""}
+            //     ()
+            //     VALUES ()
+            //     "
+            // );
+        }
+        return new Unit();
     }
 
     public Task DeleteAsync(Category category)

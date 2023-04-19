@@ -3,7 +3,7 @@ using Agora.Catalog.Services.Categories;
 namespace Agora.Catalog.IntegrationTests;
 
 [Collection("Catalog")]
-public class CategoryServiceTest // ! for some reason if I run all, it fails something is wrong with the way I have setup the fixtures/container scopes.
+public class CategoryServiceTest
 {
     private readonly ServiceFixture fixture;
 
@@ -16,12 +16,11 @@ public class CategoryServiceTest // ! for some reason if I run all, it fails som
         using var scope = fixture.CategoryService;
         var categoryService = scope.Service;
 
+        var req = new CreateCategoryCommand("Clothes");
+        _ = await categoryService.CreateAsync(req);
+
         // Act
-        var result = await categoryService.CreateAsync(
-            new Services.Categories.CreateCategoryCommand(
-                "Phones"
-            )
-        );
+        var result = await categoryService.CreateAsync(req);
 
         // Assert
         Assert.Contains(Errors.AlreadyExists, result.Errors);
@@ -36,7 +35,7 @@ public class CategoryServiceTest // ! for some reason if I run all, it fails som
 
         // Act
         var result = await categoryService.CreateAsync(
-            new Services.Categories.CreateCategoryCommand(
+            new CreateCategoryCommand(
                 "Phones"
             )
         );
@@ -54,7 +53,7 @@ public class CategoryServiceTest // ! for some reason if I run all, it fails som
 
         // Act
         var result = await categoryService.CreateAsync(
-            new Services.Categories.CreateCategoryCommand(
+            new CreateCategoryCommand(
                 "Laptops",
                 "A lot of laptops.",
                 ParentId: 999 // Non existant parent category.
@@ -87,7 +86,7 @@ public class CategoryServiceTest // ! for some reason if I run all, it fails som
         var categoryService = scope.Service;
 
         var r = await categoryService.CreateAsync(
-            new Services.Categories.CreateCategoryCommand(
+            new CreateCategoryCommand(
                 "Computers",
                 "A lot of computers."
             )

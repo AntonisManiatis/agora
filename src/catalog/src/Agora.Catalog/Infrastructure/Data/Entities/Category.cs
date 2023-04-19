@@ -7,6 +7,16 @@ class Category
     public string? Description { get; set; }
     public int? ParentId { get; set; }
     public List<Category>? Children { get; set; }
+    public List<ProductAttribute>? Attributes { get; set; }
 
-    // TODO: attributes here.
+    internal static class Schema
+    {
+        internal const string Table = "category";
+
+        internal static string Id = nameof(Category.Id).ToSnakeCase();
+        internal static string Name = nameof(Category.Name).ToSnakeCase();
+        internal static string Description = nameof(Category.Description).ToSnakeCase();
+        // internal static string ImageUrl = nameof(Category.ImageUrl).ToSnakeCase();
+        internal static string ParentId = nameof(Category.ParentId).ToSnakeCase();
+    }
 }

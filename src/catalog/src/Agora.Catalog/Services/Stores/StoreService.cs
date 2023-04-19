@@ -11,6 +11,12 @@ public interface IStoreService // TODO: Naming..
     Task<ErrorOr<Unit>> ListStoreAsync(ListStoreCommand command);
 }
 
+public static class Errors
+{
+    public static Error StoreAlreadyExists =
+        Error.Conflict(code: "Stores.AlreadyExists", description: $"A store with the same name already exists.");
+}
+
 sealed class StoreService : IStoreService
 {
     private const string DefaultLang = "en";
@@ -29,14 +35,15 @@ sealed class StoreService : IStoreService
         var exists = await storeRepository.ExistsAsync(command.Name);
         if (exists)
         {
-            return Errors.StoreAlreadyExists(command.Name);
+            return Errors.StoreAlreadyExists;
         }
 
-        var store = new Store(
-            command.Id,
-            command.Name,
-            command.Lang ?? DefaultLang // TODO: We'll get back to this, this should be configurable and dependant on installation
-        ); // TODO: Store is not active yet.
+        var store = new Store
+        {
+            Id = command.Id,
+            Name = command.Name,
+            Lang = command.Lang ?? DefaultLang // TODO: We'll get back to this, this should be configurable and dependant on installation
+        }; // TODO: Store is not active yet.
 
         await storeRepository.SaveAsync(store);
 

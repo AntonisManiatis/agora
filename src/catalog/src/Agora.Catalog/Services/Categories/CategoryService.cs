@@ -3,6 +3,8 @@ using Agora.Shared;
 
 using ErrorOr;
 
+using FluentValidation;
+
 using Mapster;
 
 using CategoryEntity = Agora.Catalog.Infrastructure.Data.Entities.Category;
@@ -32,6 +34,15 @@ public record ProductAttribute(
     List<string> Options
 );
 
+sealed class CreateCategoryCommandValidator : AbstractValidator<CreateCategoryCommand>
+{
+    public CreateCategoryCommandValidator()
+    {
+        // ? Anything else?
+        RuleFor(c => c.Name).NotEmpty().MaximumLength(3);
+    }
+}
+
 public interface ICategoryService
 {
     Task<ErrorOr<int>> CreateAsync(CreateCategoryCommand createCategory);
@@ -52,10 +63,9 @@ public static class Errors
         Error.NotFound(code: "Caregory.NotFound", description: "Category doesn't exist.");
 
     public static readonly Error AlreadyExists =
-        Error.NotFound(code: "Caregory.AlreadyExists", description: "Category already exists.");
+        Error.Conflict(code: "Caregory.AlreadyExists", description: "Category already exists.");
 }
 
-// ! sealed might prevent the proxy? test it.
 sealed class CategoryService : ICategoryService
 {
     private readonly ICategoryRepository categoryRepository;
@@ -70,6 +80,7 @@ sealed class CategoryService : ICategoryService
     {
         // TODO: validate command.
 
+        // ? can I avoid the 2 roundtrips here?
         if (createCategory.ParentId is int parentId && !await categoryRepository.ExistsAsync(parentId))
         {
             return Errors.ParentNotFound;
@@ -83,9 +94,14 @@ sealed class CategoryService : ICategoryService
             Name = createCategory.Name,
             Description = createCategory.Description,
             ParentId = createCategory.ParentId
+            // TODO: add attributes
         };
 
-        await categoryRepository.SaveAsync(category);
+        var result = await categoryRepository.SaveAsync(category);
+        if (result.IsError)
+        {
+            return result.Errors;
+        }
 
         return id;
     }

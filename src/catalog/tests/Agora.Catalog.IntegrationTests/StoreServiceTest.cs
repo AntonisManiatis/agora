@@ -34,6 +34,6 @@ public class StoreServiceTest
         var result = await service.ListStoreAsync(command);
 
         // Assert
-        Assert.Contains(Errors.StoreAlreadyExists(Name), result.Errors);
+        Assert.Contains(Errors.StoreAlreadyExists, result.Errors);
     }
 }
