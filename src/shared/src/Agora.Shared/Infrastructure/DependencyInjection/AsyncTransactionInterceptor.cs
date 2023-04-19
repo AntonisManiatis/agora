@@ -29,7 +29,8 @@ sealed class AsyncTransactionInterceptor : AsyncInterceptorBase
             return;
         }
 
-        using var connection = await connector.ConnectAsync();
+        // Let the container dispose the connection.
+        var connection = await connector.ConnectAsync();
 
         // Related to async versions of transaction methods.
         // https://github.com/npgsql/npgsql/issues/836
@@ -54,7 +55,8 @@ sealed class AsyncTransactionInterceptor : AsyncInterceptorBase
             return await proceed(invocation, proceedInfo);
         }
 
-        using var connection = await connector.ConnectAsync();
+        // Let the container dispose the connection.
+        var connection = await connector.ConnectAsync();
 
         using (var transaction = connection.BeginTransaction()) // TODO: Use Isolation level of attribute.
         {
