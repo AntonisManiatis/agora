@@ -13,8 +13,8 @@ public interface IStoreService // TODO: Naming..
 
 public static class Errors
 {
-    public static Error StoreAlreadyExists =
-        Error.Conflict(code: "Stores.AlreadyExists", description: $"A store with the same name already exists.");
+    public static readonly Error StoreAlreadyExists =
+        Error.Conflict(code: "Stores.AlreadyExists", description: "A store with the same name already exists.");
 }
 
 sealed class StoreService : IStoreService

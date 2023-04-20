@@ -45,8 +45,8 @@ internal sealed class JwtGenerator : IJwtGenerator
         var securityToken = new JwtSecurityToken(
             issuer: options.Issuer,
             audience: options.Audience,
-            expires: DateTime.UtcNow.AddMinutes(60), // TODO: add.
-            claims: claims,
+            claims: claims, // TODO: add.
+            expires: DateTime.UtcNow.AddMinutes(60),
             signingCredentials: signingCredentials
         );
 

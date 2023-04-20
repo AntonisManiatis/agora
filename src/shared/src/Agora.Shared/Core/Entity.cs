@@ -2,7 +2,7 @@ namespace Agora.Shared.Core;
 
 public abstract class Entity
 {
-    private static readonly List<object> Empty = new List<object>();
+    private static readonly List<object> Empty = new();
 
     private List<object> events = Empty;
 

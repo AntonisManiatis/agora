@@ -1,3 +1,4 @@
+using Agora.Shared;
 using Agora.Stores.Core.Stores;
 
 namespace Agora.Stores.Infrastructure.Data;

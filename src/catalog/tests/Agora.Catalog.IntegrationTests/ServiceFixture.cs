@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Agora.Catalog.IntegrationTests;
 
-public class ServiceFixture : IDisposable
+public sealed class ServiceFixture : IDisposable
 {
     private readonly ServiceProvider? provider;
 

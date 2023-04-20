@@ -43,12 +43,14 @@ internal class UserService : IUserService
             return Error.Conflict();
         }
 
-        var user = new User();
-        user.FirstName = command.FirstName;
-        user.LastName = command.LastName;
-        user.Email = command.Email;
-        // ! Naive approach, should hash passwords, etc.
-        user.Password = command.Password;
+        var user = new User
+        {
+            FirstName = command.FirstName,
+            LastName = command.LastName,
+            Email = command.Email,
+            // ! Naive approach, should hash passwords, etc.
+            Password = command.Password
+        };
 
         var userId = await userRepository.AddAsync(user);
 

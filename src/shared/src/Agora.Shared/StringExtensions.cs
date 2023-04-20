@@ -1,6 +1,8 @@
 using System.Text.RegularExpressions;
 
-public static class StringExtensions
+namespace Agora.Shared;
+
+public static partial class StringExtensions
 {
     public static string ToSnakeCase(this string input)
     {
@@ -9,7 +11,13 @@ public static class StringExtensions
             return input;
         }
 
-        var startUnderscores = Regex.Match(input, @"^_+");
-        return startUnderscores + Regex.Replace(input, @"([a-z0-9])([A-Z])", "$1_$2").ToLower();
+        var startUnderscores = StartUnderscoresRegex().Match(input);
+        return startUnderscores + CamelCaseRegex().Replace(input, "$1_$2").ToLower();
     }
+
+    [GeneratedRegex("^_+")]
+    private static partial Regex StartUnderscoresRegex();
+
+    [GeneratedRegex("([a-z0-9])([A-Z])")]
+    private static partial Regex CamelCaseRegex();
 }

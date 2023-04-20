@@ -32,7 +32,7 @@ sealed class PostgreSqlCategoryRepository : ICategoryRepository
         var connection = await connector.ConnectAsync();
 
         var categories = await connection.QueryAsync<Category>(
-            @$"SELECT * FROM {Sql.Schema}.{Category.Schema.Table}"
+            $"SELECT * FROM {Sql.Schema}.{Category.Schema.Table}"
         );
 
         var indexed = categories.ToDictionary(c => c.Id);
@@ -65,7 +65,7 @@ sealed class PostgreSqlCategoryRepository : ICategoryRepository
         var connection = await connector.ConnectAsync();
 
         var categories = await connection.QueryAsync<Category>(
-            @$"SELECT * FROM {Sql.Schema}.{Category.Schema.Table}"
+            $"SELECT * FROM {Sql.Schema}.{Category.Schema.Table}"
         );
 
         var indexed = categories.ToDictionary(c => c.Id);

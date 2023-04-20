@@ -17,5 +17,5 @@ sealed class ProductId : IEquatable<ProductId>
 
     public static implicit operator Guid(ProductId id) => id.Value;
 
-    public static implicit operator ProductId(Guid id) => new ProductId(id);
+    public static implicit operator ProductId(Guid id) => new(id);
 }

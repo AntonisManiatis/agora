@@ -50,7 +50,7 @@ public class TokenServiceTest
         using var scope = fixture.TokenService;
         var tokenService = scope.Service;
 
-        var email = "test12321@test.net";
+        const string email = "test12321@test.net";
         using (var scope2 = fixture.UserService)
         {
             await scope2.Service.RegisterUserAsync(new RegisterCommand("Test", "Test", email, "Apassword"));
@@ -73,8 +73,8 @@ public class TokenServiceTest
         using var scope = fixture.TokenService;
         var tokenService = scope.Service;
 
-        var email = "test12321@test.net";
-        var password = "Apassword";
+        const string email = "test12321@test.net";
+        const string password = "Apassword";
 
         using (var scope2 = fixture.UserService)
         {

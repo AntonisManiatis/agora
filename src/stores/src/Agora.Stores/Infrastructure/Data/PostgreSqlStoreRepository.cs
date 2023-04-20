@@ -25,8 +25,8 @@ sealed class PostgreSqlStoreRepository : IStoreRepository
             {
                 Id = storeId,
                 OwnerId = store.OwnerId.Value,
-                Status = store.Status,
-                Tin = store.Tin
+                store.Status,
+                store.Tin
             }
         );
 
@@ -42,13 +42,11 @@ sealed class PostgreSqlStoreRepository : IStoreRepository
         {
             // Not very efficient.
             // If I could batch it somehow and return all ids?
-            int categoryId = await connection.ExecuteScalarAsync<int>(
+            category.Id = await connection.ExecuteScalarAsync<int>(
                 $@"INSERT INTO {Sql.Schema}.{Sql.Category.Table} ({Sql.Category.StoreId}, {Sql.Category.Name}) 
                 VALUES (@StoreId, @Name) RETURNING {Sql.Category.Id}",
-                new { StoreId = storeId, Name = category.Name }
+                new { StoreId = storeId, category.Name }
             );
-
-            category.Id = categoryId;
 
             // TODO: Categories have products also.
         }
@@ -87,9 +85,10 @@ sealed class PostgreSqlStoreRepository : IStoreRepository
         var store = new Store(
             storeId,
             storeEntity.OwnerId
-        );
-
-        store.Tin = storeEntity.Tin;
+        )
+        {
+            Tin = storeEntity.Tin
+        };
         // TODO: status too
         return store;
     }

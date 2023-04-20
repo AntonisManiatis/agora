@@ -34,13 +34,11 @@ sealed class AsyncTransactionInterceptor : AsyncInterceptorBase
 
         // Related to async versions of transaction methods.
         // https://github.com/npgsql/npgsql/issues/836
-        using (var transaction = connection.BeginTransaction()) // TODO: Use Isolation level of attribute.
-        {
-            await proceed(invocation, proceedInfo);
+        using var transaction = connection.BeginTransaction(); // TODO: Use Isolation level of attribute.
+        await proceed(invocation, proceedInfo);
 
-            // TODO: Also post events to broker here, use Outbox pattern or similar.
-            transaction.Commit();
-        }
+        // TODO: Also post events to broker here, use Outbox pattern or similar.
+        transaction.Commit();
     }
 
     protected override async Task<TResult> InterceptAsync<TResult>(
@@ -58,23 +56,21 @@ sealed class AsyncTransactionInterceptor : AsyncInterceptorBase
         // Let the container dispose the connection.
         var connection = await connector.ConnectAsync();
 
-        using (var transaction = connection.BeginTransaction()) // TODO: Use Isolation level of attribute.
+        using var transaction = connection.BeginTransaction(); // TODO: Use Isolation level of attribute.
+        var result = await proceed(invocation, proceedInfo);
+        // TODO: test it, also not complete.
+        if (typeof(TResult).IsAssignableFrom(typeof(IErrorOr)))
         {
-            var result = await proceed(invocation, proceedInfo);
-            // TODO: test it, also not complete.
-            if (typeof(TResult).IsAssignableFrom(typeof(IErrorOr)))
+            if (invocation.ReturnValue is IErrorOr errorOr && errorOr.IsError)
             {
-                if (invocation.ReturnValue is IErrorOr errorOr && errorOr.IsError)
-                {
-                    transaction.Rollback();
-                }
-
-                return result;
+                transaction.Rollback();
             }
 
-            // TODO: Also post events to broker here, use Outbox pattern or similar.
-            transaction.Commit();
             return result;
         }
+
+        // TODO: Also post events to broker here, use Outbox pattern or similar.
+        transaction.Commit();
+        return result;
     }
 }

@@ -11,5 +11,5 @@ sealed class StoreId
 
     // TODO: Value based equality
     public static implicit operator Guid(StoreId id) => id.Value;
-    public static implicit operator StoreId(Guid id) => new StoreId(id);
+    public static implicit operator StoreId(Guid id) => new(id);
 }

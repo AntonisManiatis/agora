@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Agora.Identity.IntegrationTests;
 
-public class ServiceFixture : IDisposable
+public sealed class ServiceFixture : IDisposable
 {
     private readonly ServiceProvider? provider;
 
@@ -18,7 +18,7 @@ public class ServiceFixture : IDisposable
         services.AddShared(fixture.ConnectionString!);
         services.AddMigrations(fixture.ConnectionString!, typeof(IUserService).Assembly);
 
-        services.AddIdentity(sp => () => new JwtOptions
+        services.AddIdentity(_ => () => new JwtOptions
         {
             Issuer = "Agora",
             Audience = "Agora",

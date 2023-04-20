@@ -1,3 +1,5 @@
+using Agora.Shared;
+
 namespace Agora.Catalog.Infrastructure.Data.Entities;
 
 class Store

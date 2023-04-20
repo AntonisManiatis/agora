@@ -32,12 +32,10 @@ public class TransactionalTest : IClassFixture<PostgreSqlFixture>
         using var container = services.BuildServiceProvider();
 
         // Act
-        using (var scope = container.CreateScope())
-        {
-            // Assert
-            var service = container.GetService<ITransactionalService>();
-            await service!.DoWork();
-        }
+        using var scope = container.CreateScope();
+        // Assert
+        var service = container.GetService<ITransactionalService>();
+        await service!.DoWork();
     }
 }
 
@@ -46,7 +44,7 @@ sealed class Decorator : IDbConnector
     private readonly TransactionDbConnection connection;
 
     public Decorator(string connectionString) =>
-        this.connection = new TransactionDbConnection(new NpgsqlConnection(connectionString));
+        connection = new TransactionDbConnection(new NpgsqlConnection(connectionString));
 
     public Task<IDbConnection> ConnectAsync(CancellationToken cancellationToken = default)
     {

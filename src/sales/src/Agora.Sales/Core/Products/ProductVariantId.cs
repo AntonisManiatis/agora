@@ -13,5 +13,5 @@ sealed class ProductVariantId
 
     public static implicit operator int(ProductVariantId id) => id.Value;
 
-    public static implicit operator ProductVariantId(int id) => new ProductVariantId(id);
+    public static implicit operator ProductVariantId(int id) => new(id);
 }

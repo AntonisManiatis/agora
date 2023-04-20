@@ -1,6 +1,3 @@
 namespace Agora.Stores.UnitTests;
 
-public class ProductTest
-{
-
-}
+public class ProductTest { }

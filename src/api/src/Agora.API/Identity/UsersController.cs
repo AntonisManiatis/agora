@@ -30,7 +30,7 @@ public class UsersController : ApiController
 
         // TODO: don't return this yet!
         return result.Match(
-            userId => Ok(),
+            _ => Ok(),
             errors => Problem(errors)
         );
     }

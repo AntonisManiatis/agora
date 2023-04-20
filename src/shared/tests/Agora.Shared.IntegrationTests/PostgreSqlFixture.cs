@@ -9,7 +9,7 @@ using Testcontainers.PostgreSql;
 namespace Agora.Shared.IntegrationTests;
 
 /// <summary>
-/// Spins up a PostgreSql docker container and creates a database called agora. 
+/// Spins up a PostgreSql docker container and creates a database called agora.
 /// </summary>
 public sealed class PostgreSqlFixture : IAsyncLifetime
 {
@@ -28,19 +28,15 @@ public sealed class PostgreSqlFixture : IAsyncLifetime
         var services = new ServiceCollection();
         services.AddPostgreSql(connectionString);
 
-        using (var provider = services.BuildServiceProvider(validateScopes: true))
-        {
-            using (var scope = provider.CreateScope())
-            {
-                var connector = scope.ServiceProvider.GetRequiredService<IDbConnector>();
-                using var connection = await connector.ConnectAsync();
+        using var provider = services.BuildServiceProvider(validateScopes: true);
+        using var scope = provider.CreateScope();
+        var connector = scope.ServiceProvider.GetRequiredService<IDbConnector>();
+        using var connection = await connector.ConnectAsync();
 
-                await connection.ExecuteAsync(@"
-                    CREATE DATABASE agora;
-                    CREATE EXTENSION IF NOT EXISTS ""uuid-ossp"";
-                ");
-            }
-        }
+        await connection.ExecuteAsync(@"
+            CREATE DATABASE agora;
+            CREATE EXTENSION IF NOT EXISTS ""uuid-ossp"";
+        ");
     }
 
     public async Task DisposeAsync() => await dbContainer.DisposeAsync();

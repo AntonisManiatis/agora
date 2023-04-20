@@ -27,7 +27,7 @@ public class StoresController : ApiController
         return result.Match<IActionResult>(
             // ! see if I can avoid the allocation.
             // ? should I return the entire store again?
-            storeId => CreatedAtAction("GetStore", new { storeId = storeId }, storeId),
+            storeId => CreatedAtAction("GetStore", new { storeId }, storeId),
             errors => Problem(errors)
         );
     }

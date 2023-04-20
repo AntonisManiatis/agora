@@ -3,9 +3,7 @@ using System.Reflection;
 using MassTransit;
 
 IHost host = Host.CreateDefaultBuilder(args)
-    .ConfigureServices(services =>
-    {
-        services.AddMassTransit(options =>
+    .ConfigureServices(services => services.AddMassTransit(options =>
         {
             options.AddDelayedMessageScheduler();
 
@@ -30,9 +28,7 @@ IHost host = Host.CreateDefaultBuilder(args)
 
                 cfg.ConfigureEndpoints(context);
             });
-
-        });
-    })
+        }))
     .Build();
 
 host.Run();

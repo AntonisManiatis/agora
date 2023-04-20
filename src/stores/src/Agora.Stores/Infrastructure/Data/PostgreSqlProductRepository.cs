@@ -25,7 +25,7 @@ sealed class PostgreSqlProductRepository : IProductRepository
             {
                 Id = product.Id.Value,
                 StoreId = product.StoreId.Value,
-                Sku = product.Sku,
+                product.Sku,
                 Quantity = product.Quantity.Value
             }
         );

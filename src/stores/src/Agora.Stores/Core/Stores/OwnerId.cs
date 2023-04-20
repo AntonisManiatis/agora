@@ -12,5 +12,5 @@ sealed class OwnerId
 
     public static implicit operator Guid(OwnerId id) => id.Value;
 
-    public static implicit operator OwnerId(Guid id) => new OwnerId(id);
+    public static implicit operator OwnerId(Guid id) => new(id);
 }

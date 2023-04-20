@@ -14,5 +14,5 @@ sealed class Quantity // I hate this being a reference type. Maybe change to str
 
     public static implicit operator int(Quantity quantity) => quantity.Value;
 
-    public static implicit operator Quantity(int quantity) => new Quantity(quantity);
+    public static implicit operator Quantity(int quantity) => new(quantity);
 }

@@ -1,3 +1,6 @@
 {
-  "recommendations": ["rangav.vscode-thunder-client"]
+  "recommendations": [
+    "rangav.vscode-thunder-client",
+    "josefpihrt-vscode.roslynator"
+  ]
 }
