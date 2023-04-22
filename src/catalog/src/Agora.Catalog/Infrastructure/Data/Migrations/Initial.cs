@@ -22,9 +22,40 @@ public sealed class Initial : Migration
             .InSchema(Schema)
             .WithColumn("id").AsInt32().PrimaryKey() // With default next?
             .WithColumn("name").AsString(64).Unique().NotNullable() // ? Unsure about length.
-            .WithColumn("description").AsString(255).Nullable()
-            .WithColumn("image_url").AsString().Nullable()
+            .WithColumn("description").AsString(255).Nullable().WithDefaultValue("")
+            .WithColumn("image_url").AsString().Nullable().WithDefaultValue("")
             .WithColumn("parent_id").AsInt32().Nullable();
+
+        Create.Table("category_attribute")
+            .InSchema(Schema)
+            .WithColumn("id").AsInt32().Identity().PrimaryKey()
+            .WithColumn("category_id").AsInt32().NotNullable()
+            .WithColumn("name").AsString().Unique().NotNullable() // ? Length?
+            .WithColumn("pick_one").AsBoolean().NotNullable().WithDefaultValue(false);
+
+        Create.ForeignKey()
+            .FromTable("category_attribute")
+            .InSchema(Schema)
+            .ForeignColumn("category_id")
+            .ToTable("category")
+            .InSchema(Schema)
+            .PrimaryColumn("id")
+            .OnDelete(System.Data.Rule.Cascade);
+
+        Create.Table("category_attribute_option")
+            .InSchema(Schema)
+            .WithColumn("id").AsInt32().Identity().PrimaryKey()
+            .WithColumn("attribute_id").AsInt32().NotNullable()
+            .WithColumn("name").AsString().Unique().NotNullable(); // ? Length?
+
+        Create.ForeignKey()
+            .FromTable("category_attribute_option")
+            .InSchema(Schema)
+            .ForeignColumn("attribute_id")
+            .ToTable("category_attribute")
+            .InSchema(Schema)
+            .PrimaryColumn("id")
+            .OnDelete(System.Data.Rule.Cascade);
 
         Create.Table(ProductTable)
             .InSchema(Schema)
@@ -42,6 +73,8 @@ public sealed class Initial : Migration
     public override void Down()
     {
         Delete.Sequence("category_id_seq");
+
+        // TODO: add deletes as well
 
         Delete.Table(CategoryTable).InSchema(Schema);
         Delete.Table(ProductTable).InSchema(Schema);

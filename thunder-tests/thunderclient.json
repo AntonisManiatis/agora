@@ -77,12 +77,12 @@
     "method": "POST",
     "sortNum": 30000,
     "created": "2023-04-16T19:54:41.624Z",
-    "modified": "2023-04-18T07:59:29.955Z",
+    "modified": "2023-04-21T17:18:50.319Z",
     "headers": [],
     "params": [],
     "body": {
       "type": "json",
-      "raw": "{\n  \"name\": \"Consoles\",\n  \"parentId\": \"1\",\n  \"attributes\": [\n    {\n      \"name\": \"Manufacturer\",\n      \"options\": [\n        \"Sony\",\n        \"Microsoft\",\n        \"Nintendo\"\n      ]\n    }\n  ]\n}",
+      "raw": "{\n  \"name\": \"Consoles\",\n  \"parentId\": \"1\",\n  \"attributes\": [\n    {\n      \"name\": \"Manufacturer\",\n      \"pick_one\": false,\n      \"options\": [\n        \"Sony\",\n        \"Microsoft\",\n        \"Nintendo\"\n      ]\n    }\n  ]\n}",
       "form": []
     },
     "auth": {
@@ -100,7 +100,7 @@
     "method": "GET",
     "sortNum": 40000,
     "created": "2023-04-18T06:03:44.641Z",
-    "modified": "2023-04-18T08:21:46.149Z",
+    "modified": "2023-04-21T17:48:23.741Z",
     "headers": [],
     "params": [],
     "tests": []
@@ -115,6 +115,38 @@
     "sortNum": 50000,
     "created": "2023-04-18T06:09:45.675Z",
     "modified": "2023-04-18T06:09:55.459Z",
+    "headers": [],
+    "params": [],
+    "tests": []
+  },
+  {
+    "_id": "fa872105-f326-4aa4-acf1-efbacbc247b8",
+    "colId": "63b46333-5a98-4bc9-932b-5a91e9a78cb3",
+    "containerId": "",
+    "name": "Delete a category",
+    "url": "http://{{host}}/categories/2",
+    "method": "DELETE",
+    "sortNum": 35000,
+    "created": "2023-04-21T06:50:03.150Z",
+    "modified": "2023-04-21T17:48:12.276Z",
+    "headers": [],
+    "params": [],
+    "auth": {
+      "type": "bearer",
+      "bearer": "{{token}}"
+    },
+    "tests": []
+  },
+  {
+    "_id": "0ffc1fa2-dbbf-4dde-ba86-614d4e6805d0",
+    "colId": "63b46333-5a98-4bc9-932b-5a91e9a78cb3",
+    "containerId": "",
+    "name": "Get attributes of a category",
+    "url": "http://{{host}}/categories/2/attributes",
+    "method": "GET",
+    "sortNum": 70000,
+    "created": "2023-04-21T12:16:48.125Z",
+    "modified": "2023-04-21T17:34:47.488Z",
     "headers": [],
     "params": [],
     "tests": []

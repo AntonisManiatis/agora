@@ -35,11 +35,13 @@ static class ErrorOrExtensions
     }
 
     // ? Name?
-    internal static IResult MatchOk<T>(this ErrorOr<T> errorOr, Func<T, IResult> func)
-    {
-        return errorOr.Match<IResult>(
+    internal static IResult MatchOk<T>(this ErrorOr<T> errorOr, Func<T, IResult> func) =>
+        errorOr.Match(
             func,
             errors => errors.ToProblem()
         );
-    }
+
+    // ? Name?
+    internal static async Task<IResult> MatchOkAsync<T>(this Task<ErrorOr<T>> task, Func<T, IResult> func) =>
+        (await task).MatchOk(func);
 }

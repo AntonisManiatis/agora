@@ -11,7 +11,7 @@ interface ICategoryRepository
 
     Task<IEnumerable<Category>> GetAllAsync();
 
-    Task<Category?> GetAsync(int id);
+    Task<Category?> GetAsync(int id, bool plusAttributes = false);
 
     Task<int> NextIdentity();
 

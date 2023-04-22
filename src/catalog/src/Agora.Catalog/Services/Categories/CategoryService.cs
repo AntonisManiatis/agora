@@ -8,30 +8,27 @@ using FluentValidation;
 using Mapster;
 
 using CategoryEntity = Agora.Catalog.Infrastructure.Data.Entities.Category;
+using ProductAttributeEntity = Agora.Catalog.Infrastructure.Data.Entities.ProductAttribute;
+using ProductAttributes = System.Collections.Generic.IEnumerable<Agora.Catalog.Services.Categories.ProductAttribute>;
+using ProductOptionEntity = Agora.Catalog.Infrastructure.Data.Entities.ProductOption;
 
 namespace Agora.Catalog.Services.Categories;
 
 public record Category(
-    int Id,
+    int Id, // TODO: Level or Depth would be good.
     string Name,
-    string? Description = null,
-    string? ImageUrl = null,
-    int? ParentId = null,
+    string Description = "",
+    string ImageUrl = "", // ? Or ID?
+    int? ParentId = null, // ? Can this be default 0?
     IList<Category>? Children = null
 );
 
 public record CreateCategoryCommand(
     string Name,
-    string? Description = null,
-    string? ImageUrl = null, // ? Or ID?
-    int? ParentId = null,
+    string Description = "",
+    string ImageUrl = "", // ? Or ID?
+    int? ParentId = null, // ? Can this be default 0?
     IList<ProductAttribute>? Attributes = null
-);
-
-public record ProductAttribute(
-    string Name,
-    bool PickOne,
-    List<string> Options
 );
 
 sealed class CreateCategoryCommandValidator : AbstractValidator<CreateCategoryCommand>
@@ -40,7 +37,26 @@ sealed class CreateCategoryCommandValidator : AbstractValidator<CreateCategoryCo
     {
         // ? Anything else?
         RuleFor(c => c.Name).NotEmpty().MaximumLength(3);
+
+        // ! If there is an attribute, it cannot have an empty name or zero options.
     }
+}
+
+public record ProductAttribute(
+    string Name,
+    bool PickOne,
+    IList<ProductOption> Options,
+    int? Id = 0 // To reuse
+);
+
+public record ProductOption(
+    string Name,
+    int? Id = 0
+)
+{
+    public static implicit operator ProductOption(string name) => new(name);
+
+    public static implicit operator ProductOption((int, string) opt) => new(opt.Item2, opt.Item1);
 }
 
 public interface ICategoryService
@@ -52,6 +68,8 @@ public interface ICategoryService
     Task<IEnumerable<Category>> GetAllAsync();
 
     Task<ErrorOr<Category>> GetAsync(int id);
+
+    Task<ErrorOr<ProductAttributes>> GetAttributesAsync(int id);
 }
 
 public static class Errors
@@ -86,6 +104,7 @@ sealed class CategoryService : ICategoryService
             return Errors.ParentNotFound;
         }
 
+        // TODO: I can use identity directly here actually.
         var id = await categoryRepository.NextIdentity();
 
         var category = new CategoryEntity
@@ -93,9 +112,19 @@ sealed class CategoryService : ICategoryService
             Id = id,
             Name = createCategory.Name,
             Description = createCategory.Description,
-            ParentId = createCategory.ParentId
-            // TODO: add attributes
+            ParentId = createCategory.ParentId,
         };
+
+        if (createCategory.Attributes is not null or [])
+        {
+            category.Attributes = createCategory.Attributes!.Select(a => new ProductAttributeEntity
+            {
+                CategoryId = id,
+                Name = a.Name,
+                PickOne = a.PickOne,
+                Options = a.Options.Select(option => new ProductOptionEntity { Name = option.Name }).ToList()
+            }).ToList();
+        }
 
         var result = await categoryRepository.SaveAsync(category);
         if (result.IsError)
@@ -109,6 +138,13 @@ sealed class CategoryService : ICategoryService
     [Transactional]
     public async Task<ErrorOr<Unit>> DeleteAsync(int id)
     {
+        if (id <= 0)
+        {
+            return Errors.CategoryNotFound;
+        }
+
+        // ? this will generate a ton of garbage for something so simple. 
+        // ? Maybe move the call to delete if there's no business logic.
         var category = await categoryRepository.GetAsync(id);
         if (category is null)
         {
@@ -132,6 +168,11 @@ sealed class CategoryService : ICategoryService
 
     public async Task<ErrorOr<Category>> GetAsync(int id)
     {
+        if (id <= 0)
+        {
+            return Errors.CategoryNotFound;
+        }
+
         var category = await categoryRepository.GetAsync(id);
         if (category is null)
         {
@@ -139,5 +180,26 @@ sealed class CategoryService : ICategoryService
         }
 
         return category.Adapt<Category>();
+    }
+
+    public async Task<ErrorOr<ProductAttributes>> GetAttributesAsync(int id)
+    {
+        if (id <= 0)
+        {
+            return Errors.CategoryNotFound;
+        }
+
+        var category = await categoryRepository.GetAsync(id, plusAttributes: true);
+        if (category is null)
+        {
+            return Errors.CategoryNotFound;
+        }
+
+        if (category.Attributes is null)
+        {
+            return Errors.CategoryNotFound;
+        }
+
+        return ErrorOrFactory.From(category.Attributes.Adapt<ProductAttributes>());
     }
 }

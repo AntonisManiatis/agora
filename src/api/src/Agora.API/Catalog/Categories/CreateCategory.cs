@@ -1,11 +1,15 @@
-using Agora.Catalog.Services.Categories;
-
 namespace Agora.API.Catalog.Categories;
 
 record CreateCategory(
     string Name,
-    string? Description,
-    string? ImageUrl, // ? Or ID?
-    int? ParentId,
-    IList<ProductAttribute>? Attributes
+    int? ParentId, // default 0?
+    IList<ProductAttribute>? Attributes,
+    string? Description = "",
+    string? ImageUrl = "" // ? Or ID?
+);
+
+record ProductAttribute(
+    string Name,
+    bool PickOne,
+    IList<string> Options
 );

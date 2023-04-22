@@ -11,6 +11,4 @@ public sealed class Scoped<T> : IDisposable where T : notnull
     public T Service => scope.ServiceProvider.GetRequiredService<T>();
 
     public void Dispose() => scope.Dispose();
-
-    public static implicit operator T(Scoped<T> scoped) => scoped.Service;
 }

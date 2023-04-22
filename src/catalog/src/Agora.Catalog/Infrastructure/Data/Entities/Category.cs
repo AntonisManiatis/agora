@@ -9,7 +9,7 @@ class Category
     public string? Description { get; set; }
     public int? ParentId { get; set; }
     public List<Category>? Children { get; set; }
-    public List<ProductAttribute>? Attributes { get; set; }
+    public List<ProductAttribute> Attributes { get; set; } = new();
 
     internal static class Schema
     {

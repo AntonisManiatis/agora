@@ -1,4 +1,5 @@
 using Agora.Catalog.Services.Categories;
+using Agora.Shared;
 
 namespace Agora.Catalog.IntegrationTests;
 
@@ -65,6 +66,35 @@ public class CategoryServiceTest
     }
 
     [Fact]
+    public async Task A_category_can_have_attributes()
+    {
+        // Arrange
+        using var scope = fixture.CategoryService;
+        var categoryService = scope.Service;
+
+        var attributes = new List<ProductAttribute>
+        {
+            new ProductAttribute("size", true, new List<ProductOption> { (1, "38"), (2, "39"), (3, "40") }, 1),
+            new ProductAttribute("color", false, new List<ProductOption> { (4, "red"), (5, "green") }, 2),
+        };
+
+        var cmd = new CreateCategoryCommand(
+            "Shoes",
+            "A lot of shoes.",
+            Attributes: attributes
+        );
+
+        // Act
+        var result = await categoryService.CreateAsync(cmd);
+
+        // Assert
+        var id = result.Value;
+        var actual = (await categoryService.GetAttributesAsync(id)).Value;
+
+        Assert.Equal(attributes, actual);
+    }
+
+    [Fact]
     public async Task Getting_a_category_that_does_not_exist_returns_an_error()
     {
         // Arrange
@@ -102,5 +132,21 @@ public class CategoryServiceTest
 
         // Assert
         Assert.Equal(new Category(existingCategoryId, "Computers", "A lot of computers."), result.Value);
+    }
+
+    [Fact]
+    public async Task Deleting_a_category_() // TODO: Name.
+    {
+        // Arrange
+        using var scope = fixture.CategoryService;
+        var categoryService = scope.Service;
+
+        var r1 = await categoryService.CreateAsync(new CreateCategoryCommand("To be deleted"));
+
+        // Act
+        var result = await categoryService.DeleteAsync(r1.Value);
+
+        // Assert
+        Assert.Equal(new Unit(), result.Value);
     }
 }

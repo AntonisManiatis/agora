@@ -22,43 +22,24 @@ static class Categories
         // TODO: put or patch on a category's attributes?
     }
 
-    internal static async Task<IResult> CreateAsync(
+    static async Task<IResult> CreateAsync(
         CreateCategory createCategory,
         ICategoryService categoryService
-    )
-    {
-        var result = await categoryService.CreateAsync(
-            createCategory.Adapt<CreateCategoryCommand>()
-        );
+    ) => await categoryService.CreateAsync(createCategory.Adapt<CreateCategoryCommand>())
+        .MatchOkAsync(id => CreatedAtRoute("GetCategory", new { Id = id }, id));
 
-        return result.MatchOk(
-            id => CreatedAtRoute("GetCategory", new { Id = id }, id)
-        );
-    }
+    static async Task<IResult> DeleteAsync(int id, ICategoryService categoryService) =>
+        await categoryService.DeleteAsync(id).MatchOkAsync(_ => Ok());
 
-    internal static async Task<IResult> DeleteAsync(int id, ICategoryService categoryService)
-    {
-        var result = await categoryService.DeleteAsync(id);
-        return result.MatchOk(
-            _ => Ok()
-        );
-    }
-
-    internal static Task<IResult> UpdateAsync(int id, ICategoryService categoryService) =>
+    static Task<IResult> UpdateAsync(int id, ICategoryService categoryService) =>
         throw new NotImplementedException(); // TODO: Impl
 
-    // ? Can I do the MVC thing here and return the type directly?
-    internal static async Task<IResult> GetAllAsync(ICategoryService categoryService) =>
+    static async Task<IResult> GetAllAsync(ICategoryService categoryService) =>
         Ok(await categoryService.GetAllAsync());
 
-    internal static async Task<IResult> GetAsync(int id, ICategoryService categoryService)
-    {
-        var result = await categoryService.GetAsync(id);
-        return result.MatchOk(
-            category => Ok(category)
-        );
-    }
+    static async Task<IResult> GetAsync(int id, ICategoryService categoryService) =>
+        await categoryService.GetAsync(id).MatchOkAsync(category => Ok(category));
 
-    internal static Task<IResult> GetAttributesAsync(int id, ICategoryService categoryService) =>
-        throw new NotImplementedException(); // TODO: Impl
+    static async Task<IResult> GetAttributesAsync(int id, ICategoryService categoryService) =>
+        await categoryService.GetAttributesAsync(id).MatchOkAsync(attributes => Ok(attributes));
 }
